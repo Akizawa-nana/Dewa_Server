@@ -340,6 +340,31 @@ function loadData() {
   });
 }
 
+/* デザイン切り替え関数 */
+function toggleTheme() {
+  const body = document.body;
+  const akitaElements = document.querySelectorAll('.theme-only-akita');
+  const cleanElements = document.querySelectorAll('.theme-only-clean');
+
+  if (body.classList.contains('theme-clean')) {
+    // クリーン → 秋田モダンへ
+    body.classList.remove('theme-clean');
+    body.classList.add('theme-akita');
+    
+    // ヘッダー表示の切り替え
+    akitaElements.forEach(el => el.style.display = 'block');
+    cleanElements.forEach(el => el.style.display = 'none');
+  } else {
+    // 秋田モダン → クリーンへ
+    body.classList.remove('theme-akita');
+    body.classList.add('theme-clean');
+    
+    // ヘッダー表示の切り替え
+    akitaElements.forEach(el => el.style.display = 'none');
+    cleanElements.forEach(el => el.style.display = 'block');
+  }
+}
+
 loadData();
 
 </script>
