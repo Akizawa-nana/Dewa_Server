@@ -128,7 +128,6 @@
       <div class="tab" data-tab="status">貸出状況</div>
     </div>
 
-    <!-- 建築 -->
     <div id="build" class="tab-content active">
       <h1>建築申請書</h1>
       <form id="buildForm">
@@ -152,7 +151,6 @@
       </form>
     </div>
 
-    <!-- レンタル -->
     <div id="rentcar" class="tab-content">
       <h1>車両レンタル</h1>
       <form id="rentForm">
@@ -166,14 +164,16 @@
       </form>
     </div>
 
-    <!-- 返却 -->
     <div id="returncar" class="tab-content">
       <h1>返却・料金精算</h1>
       <form id="returnForm">
+        <label>MCID（本人確認）</label>
+        <input type="text" id="returnMcid" placeholder="貸出時のMCIDを入力" required>
+
         <label>車両ナンバー</label>
         <select name="number" id="returnCarSelect"></select>
 
-        <button type="button" onclick="calculateFee()">料金算出</button>
+        <button type="button" onclick="calculateFee()">料金算出・本人確認</button>
 
         <div id="calcResult" style="display:none;">
           <div id="feeDetail"></div>
@@ -184,7 +184,6 @@
       </form>
     </div>
 
-    <!-- 状況 -->
     <div id="status" class="tab-content">
       <h1>現在貸出状況</h1>
       <table>
@@ -224,7 +223,7 @@ document.getElementById("buildForm").addEventListener("submit", function(e) {
   });
 });
 
-/* レンタル（2台制限対応） - 修正版 */
+/* レンタル（2台制限対応） */
 document.getElementById("rentForm").addEventListener("submit", function(e) {
   e.preventDefault();
   const data = new URLSearchParams(new FormData(this));
@@ -233,9 +232,6 @@ document.getElementById("rentForm").addEventListener("submit", function(e) {
   fetch(GAS_URL, { method:"POST", body:data })
   .then(res => res.text())
   .then(result => {
-    // console.log("Debug:", result); // デバッグ用：中身を確認したい場合
-
-    // 「Error」という文字が含まれている場合はすべて失敗として扱う
     if (result.includes("Error")) {
       if (result.includes("Limit exceeded")) {
         alert("【制限エラー】同時レンタルは2台までです。3台目は借りられません。");
@@ -244,8 +240,6 @@ document.getElementById("rentForm").addEventListener("submit", function(e) {
       }
       return;
     }
-
-    // Success の場合のみ開始アラートを出す
     alert("レンタル開始！");
     this.reset();
     loadData();
@@ -260,6 +254,8 @@ document.getElementById("returnForm").addEventListener("submit", function(e) {
   e.preventDefault();
   const data = new URLSearchParams(new FormData(this));
   data.append("mode", "return");
+  // 念のためMCIDも送信データに含める（GAS側での検証用）
+  data.append("mcid", document.getElementById("returnMcid").value);
 
   fetch(GAS_URL, { method:"POST", body:data })
   .then(() => {
@@ -271,19 +267,33 @@ document.getElementById("returnForm").addEventListener("submit", function(e) {
   });
 });
 
-/* 料金計算 */
+/* 料金計算 & MCID照合 */
 function calculateFee() {
+  const inputMcid = document.getElementById("returnMcid").value.trim();
   const num = document.getElementById("returnCarSelect").value;
   const target = currentRentData.find(item => item.number == num);
 
+  if (!inputMcid) {
+    alert("MCIDを入力してください。");
+    return;
+  }
+
   if (target && target.status === "貸出中") {
+    // GAS側のJSONにmcidが含まれている必要があります
+    if (target.mcid !== inputMcid) {
+      alert("【エラー】MCIDが一致しません。貸出時と同じMCIDを入力してください。");
+      document.getElementById("calcResult").style.display = "none";
+      document.getElementById("returnBtn").style.display = "none";
+      return;
+    }
+
     const now = new Date();
     const rentDate = new Date(target.lastDate);
     const diffDays = Math.max(1, Math.ceil(Math.abs(now - rentDate)/(1000*60*60*24)));
     const totalFee = diffDays * target.price;
 
     document.getElementById("feeDetail").innerHTML =
-      `車種: ${target.car} / ${diffDays}日利用`;
+      `借受人: ${target.mcid}<br>車種: ${target.car} / ${diffDays}日利用`;
 
     document.getElementById("feeTotal").innerText =
       `合計: ${totalFee}円`;
@@ -326,10 +336,8 @@ function loadData() {
         returnSelect.appendChild(optR);
       }
 
-      // --- テーブル（貸出状況）の処理：ここを修正 ---
+      // --- テーブル（貸出状況）の処理 ---
       const tr = document.createElement("tr");
-      
-      // 状態によってクラスを使い分ける
       const statusClass = (item.status === "貸出中") ? "status-busy" : "status-vacant";
       
       tr.innerHTML = `
@@ -349,19 +357,13 @@ function toggleTheme() {
   const cleanElements = document.querySelectorAll('.theme-only-clean');
 
   if (body.classList.contains('theme-clean')) {
-    // クリーン → 秋田モダンへ
     body.classList.remove('theme-clean');
     body.classList.add('theme-akita');
-    
-    // ヘッダー表示の切り替え
     akitaElements.forEach(el => el.style.display = 'block');
     cleanElements.forEach(el => el.style.display = 'none');
   } else {
-    // 秋田モダン → クリーンへ
     body.classList.remove('theme-akita');
     body.classList.add('theme-clean');
-    
-    // ヘッダー表示の切り替え
     akitaElements.forEach(el => el.style.display = 'none');
     cleanElements.forEach(el => el.style.display = 'block');
   }
