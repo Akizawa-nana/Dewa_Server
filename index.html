@@ -8,23 +8,32 @@
   <style>
     body { font-family: 'Helvetica Neue', Arial, sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f7f6; color: #333; }
     .container { max-width: 650px; margin: 0 auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+    
+    /* タブ */
     .tabs { display: flex; margin-bottom: 20px; border-bottom: 2px solid #eee; }
     .tab { flex: 1; padding: 12px; text-align: center; cursor: pointer; background: #f8f9fa; font-weight: bold; transition: 0.3s; }
     .tab.active { background: #2ecc71; color: white; border-radius: 8px 8px 0 0; }
+    
     .tab-content { display: none; padding-top: 10px; }
     .tab-content.active { display: block; }
+    
     .notice { background-color: #fff3cd; border-left: 5px solid #ffca28; padding: 15px; margin-bottom: 20px; font-size: 0.9em; border-radius: 4px; }
     h1 { color: #2c3e50; font-size: 1.4em; border-bottom: 2px solid #2ecc71; padding-bottom: 8px; }
+    
     label { font-weight: bold; display: block; margin-top: 15px; }
     input, select { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
-    button { width: 100%; margin-top: 25px; padding: 14px; cursor: pointer; background: #2ecc71; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 1em; }
+    
+    button { width: 100%; margin-top: 25px; padding: 14px; cursor: pointer; background: #2ecc71; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 1em; transition: 0.3s; }
     button:hover { background: #27ae60; }
     button:disabled { background: #ccc; }
+    
+    /* テーブル */
     table { width: 100%; border-collapse: collapse; margin-top: 15px; }
     th, td { border-bottom: 1px solid #eee; padding: 12px; text-align: left; }
     .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 0.8em; font-weight: bold; }
     .status-vacant { background: #d4edda; color: #155724; }
     .status-busy { background: #f8d7da; color: #721c24; }
+    
     #calcResult { margin-top: 15px; padding: 15px; background: #e8f4fd; border-radius: 6px; display: none; border: 1px solid #3498db; }
   </style>
 </head>
@@ -39,8 +48,8 @@
   </div>
 
   <div id="build" class="tab-content active">
-    <h1>建築申請</h1>
-    <div class="notice">申請後、すぐに建築を開始してOKです！</div>
+    <h1>建築申請フォーム</h1>
+    <div class="notice">申請後、すぐに建築を開始できます。</div>
     <form id="buildForm">
       <label>MCID</label><input type="text" name="mcid" required>
       <label>建築の種類</label>
@@ -88,8 +97,8 @@
 </div>
 
 <script>
-  // GASのデプロイURL
-  const GAS_URL = "https://script.google.com/macros/s/AKfycbwsq8vd69zZf5FsTUxfa26PS7mB3n8jJEuRJ_Xck68XRZvExMIW3gRxxCDU7KLiyHKH/exec";
+  // ★ デプロイ後にURLをここに貼り付けてください
+  const GAS_URL = "ここにデプロイURLを貼る";
 
   // タブ切り替え
   document.querySelectorAll(".tab").forEach(tab => {
@@ -102,6 +111,7 @@
 
   let currentRentData = [];
 
+  // 料金計算
   function calculateFee() {
     const num = document.getElementById("returnCarSelect").value;
     const target = currentRentData.find(item => item.number == num);
@@ -117,7 +127,7 @@
     }
   }
 
-  // 各フォーム送信
+  // 建築申請送信
   document.getElementById("buildForm").addEventListener("submit", function(e) {
     e.preventDefault();
     const btn = document.getElementById("buildBtn"); btn.disabled = true;
@@ -125,6 +135,7 @@
     fetch(GAS_URL, { method: "POST", body: data }).then(() => { alert("建築申請完了！"); this.reset(); }).finally(() => btn.disabled = false);
   });
 
+  // 借りる送信
   document.getElementById("rentForm").addEventListener("submit", function(e) {
     e.preventDefault();
     const btn = document.getElementById("rentBtn"); btn.disabled = true;
@@ -132,6 +143,7 @@
     fetch(GAS_URL, { method: "POST", body: data }).then(() => { alert("レンタル開始！"); this.reset(); loadData(); }).finally(() => btn.disabled = false);
   });
 
+  // 返却送信
   document.getElementById("returnForm").addEventListener("submit", function(e) {
     e.preventDefault();
     const btn = document.getElementById("returnBtn"); btn.disabled = true;
@@ -152,20 +164,18 @@
         select.innerHTML = ""; returnSelect.innerHTML = ""; tbody.innerHTML = "";
 
         list.forEach(item => {
-          // --- 車両選択タブ（借りる）の表示形式変更 ---
+          // --- 借りるプルダウン ---
           const opt = document.createElement("option");
           opt.value = item.number;
-          
           if (item.status === "貸出中") {
-            // (例) ナンバー (車種) 貸出中
             opt.textContent = `${item.number} (${item.car}) 貸出中`;
             opt.disabled = true;
           } else {
-            // (例) ナンバー (車種) 貸し出し料金:1日100円
             opt.textContent = `${item.number} (${item.car}) 貸し出し料金:1日${item.price}円`;
           }
           select.appendChild(opt);
 
+          // --- 返却プルダウン ---
           if (item.status === "貸出中") {
             const optR = document.createElement("option");
             optR.value = item.number;
@@ -173,9 +183,12 @@
             returnSelect.appendChild(optR);
           }
 
+          // --- 状況テーブル ---
           const tr = document.createElement("tr");
-          const sClass = item.status === "空車" ? "status-vacant" : "status-busy";
-          tr.innerHTML = `<td>${item.number}</td><td>${item.car}</td><td><span class="status-badge ${sClass}">${item.status}</span></td>`;
+          const isBusy = (item.status === "貸出中");
+          const sClass = isBusy ? "status-busy" : "status-vacant";
+          const sText = isBusy ? "貸出中" : "空車";
+          tr.innerHTML = `<td>${item.number}</td><td>${item.car}</td><td><span class="status-badge ${sClass}">${sText}</span></td>`;
           tbody.appendChild(tr);
         });
       });
