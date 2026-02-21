@@ -9,7 +9,6 @@
       body { font-family: 'Helvetica Neue', Arial, sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f7f6; color: #333; }
       .container { max-width: 500px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
       
-      /* 注意書きのスタイル */
       .notice { background-color: #fff3cd; border-left: 5px solid #ffca28; padding: 15px; margin-bottom: 20px; font-size: 0.9em; }
       .notice b { color: #856404; }
 
@@ -54,34 +53,26 @@
     </div>
 
     <script>
-      // ★重要：ここにGoogle Apps Scriptの「ウェブアプリURL」を貼り付けてください
       const GAS_URL = 'https://script.google.com/macros/s/AKfycbwsq8vd69zZf5FsTUxfa26PS7mB3n8jJEuRJ_Xck68XRZvExMIW3gRxxCDU7KLiyHKH/exec';
 
       const form = document.getElementById('requestForm');
       const btn = document.getElementById('submitBtn');
 
       form.addEventListener('submit', function(e) {
-        e.preventDefault(); // 画面リロードを防止
+        e.preventDefault();
 
-        // ボタンを無効化（連打防止）
         btn.disabled = true;
         btn.innerText = "送信中...";
 
-        const data = {
-          mcid: form.mcid.value.trim(),
-          type: form.type.value,
-          purpose: form.purpose.value.trim(),
-          coords: form.coords.value.trim()
-        };
+        const data = new URLSearchParams();
+        data.append('mcid', form.mcid.value.trim());
+        data.append('type', form.type.value);
+        data.append('purpose', form.purpose.value.trim());
+        data.append('coords', form.coords.value.trim());
 
-        // GASへデータを送信
         fetch(GAS_URL, {
           method: 'POST',
-          mode: 'no-cors', // GASとの通信に必要
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(data)
+          body: data
         })
         .then(() => {
           alert("申請が完了しました！建築を開始してください。");
