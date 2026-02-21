@@ -85,19 +85,8 @@
           <label>MCID</label>
           <input type="text" name="mcid" required>
 
-          <label>車種</label>
-          <select name="car">
-            <option value="軽トラ">軽トラ</option>
-            <option value="スポーツカー">スポーツカー</option>
-            <option value="バス">バス</option>
-          </select>
-
-          <label>料金（1日）</label>
-          <select name="price">
-            <option value="100">100円</option>
-            <option value="200">200円</option>
-            <option value="500">500円</option>
-          </select>
+          <label>ナンバー（車両データベースから自動読み込み）</label>
+          <select name="number" id="carNumberSelect"></select>
 
           <button type="submit" id="rentBtn">レンタカーを借りる</button>
         </form>
@@ -160,8 +149,7 @@
         const data = new URLSearchParams();
         data.append('mode', 'rent');
         data.append('mcid', rentForm.mcid.value.trim());
-        data.append('car', rentForm.car.value);
-        data.append('price', rentForm.price.value);
+        data.append('number', rentForm.number.value);
 
         fetch(GAS_URL, { method: 'POST', body: data })
         .then(() => {
@@ -173,6 +161,19 @@
           rentBtn.innerText = "レンタカーを借りる";
         });
       });
+
+      /* 車両データベースを読み込んでプルダウン生成 */
+      fetch(GAS_URL + "?mode=carlist")
+        .then(res => res.json())
+        .then(list => {
+          const select = document.getElementById("carNumberSelect");
+          list.forEach(item => {
+            const opt = document.createElement("option");
+            opt.value = item.number;
+            opt.textContent = `${item.number}（${item.car} / ${item.price}円）`;
+            select.appendChild(opt);
+          });
+        });
     </script>
   </body>
 </html>
