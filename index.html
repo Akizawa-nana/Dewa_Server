@@ -298,9 +298,7 @@ function loadData() {
   fetch(GAS_URL + "?mode=carlist")
   .then(res => res.json())
   .then(list => {
-
     currentRentData = list;
-
     const select = document.getElementById("carSelect");
     const returnSelect = document.getElementById("returnCarSelect");
     const tbody = document.getElementById("statusTable");
@@ -310,10 +308,9 @@ function loadData() {
     tbody.innerHTML="";
 
     list.forEach(item => {
-
+      // --- セレクトボックスの処理 ---
       const opt = document.createElement("option");
       opt.value = item.number;
-
       if (item.status === "貸出中") {
         opt.textContent = `${item.number} (${item.car}) 貸出中`;
         opt.disabled = true;
@@ -329,17 +326,22 @@ function loadData() {
         returnSelect.appendChild(optR);
       }
 
+      // --- テーブル（貸出状況）の処理：ここを修正 ---
       const tr = document.createElement("tr");
+      
+      // 状態によってクラスを使い分ける
+      const statusClass = (item.status === "貸出中") ? "status-busy" : "status-vacant";
+      
       tr.innerHTML = `
         <td>${item.number}</td>
         <td>${item.car}</td>
-        <td>${item.status}</td>
+        <td><span class="status-badge ${statusClass}">${item.status}</span></td>
       `;
       tbody.appendChild(tr);
     });
   });
 }
-
+  
 /* デザイン切り替え関数 */
 function toggleTheme() {
   const body = document.body;
