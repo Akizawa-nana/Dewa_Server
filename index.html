@@ -336,6 +336,66 @@ function toggleTheme() {
 }
 
 loadData();
+
+<div id="chat-container" style="position: fixed; bottom: 20px; right: 20px; z-index: 10000; font-family: sans-serif;">
+  <div id="chat-bubble" onclick="toggleChat()" style="width: 60px; height: 60px; background: #8c1f28; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3); color: white; font-size: 24px;">
+    💬
+  </div>
+
+  <div id="chat-window" style="display: none; width: 300px; background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 5px 25px rgba(0,0,0,0.2); margin-bottom: 15px; border: 1px solid #ddd;">
+    <div style="background: #1c2a44; color: white; padding: 15px; font-weight: bold; display: flex; justify-content: space-between;">
+      <span>出羽鯖 ヘルプボット</span>
+      <span style="cursor: pointer;" onclick="toggleChat()">×</span>
+    </div>
+    
+    <div id="chat-content" style="height: 350px; overflow-y: auto; padding: 15px; background: #f9fbff;">
+      <div style="background: #eef3fb; padding: 10px; border-radius: 10px; margin-bottom: 10px; font-size: 0.9em; line-height: 1.4;">
+        出羽鯖ガイドです！分からないことがあれば下の質問をクリックしてください。
+      </div>
+      
+      <div id="faq-list">
+        <button onclick="askChat('建築ルールを教えて')" style="width: 100%; padding: 8px; margin: 4px 0; border: 1px solid #c8a951; border-radius: 20px; background: white; cursor: pointer; font-size: 0.85em; text-align: left;">📋 建築ルールについて</button>
+        <button onclick="askChat('返却のやり方が分からない')" style="width: 100%; padding: 8px; margin: 4px 0; border: 1px solid #c8a951; border-radius: 20px; background: white; cursor: pointer; font-size: 0.85em; text-align: left;">🚗 返却のやり方</button>
+        <button onclick="askChat('2台以上借りたい')" style="width: 100%; padding: 8px; margin: 4px 0; border: 1px solid #c8a951; border-radius: 20px; background: white; cursor: pointer; font-size: 0.85em; text-align: left;">🔑 貸出制限について</button>
+        <button onclick="askChat('MCIDが一致しない')" style="width: 100%; padding: 8px; margin: 4px 0; border: 1px solid #c8a951; border-radius: 20px; background: white; cursor: pointer; font-size: 0.85em; text-align: left;">❌ MCIDエラーの対処</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* チャットの表示切り替え */
+function toggleChat() {
+  const window = document.getElementById('chat-window');
+  window.style.display = window.style.display === 'none' ? 'block' : 'none';
+}
+
+/* 回答の自動応答 */
+function askChat(question) {
+  const content = document.getElementById('chat-content');
+  
+  // ユーザーの質問を表示
+  content.innerHTML += `<div style="text-align: right; margin-bottom: 10px;"><span style="background: #8c1f28; color: white; padding: 8px 12px; border-radius: 15px 15px 0 15px; font-size: 0.85em; display: inline-block;">${question}</span></div>`;
+  
+  // 回答ロジック
+  let answer = "";
+  if (question.includes('建築')) {
+    answer = "景観を崩さないようにお願いします！詳細はDiscordのルールチャンネルを確認してね。";
+  } else if (question.includes('返却')) {
+    answer = "「返却・精算」タブで、借りた時と同じMCIDを入力して「料金算出」を押せばOKです！";
+  } else if (question.includes('制限')) {
+    answer = "レンタカーは1人2台までです。それ以上は一度返却してから借りてね。";
+  } else if (question.includes('MCID')) {
+    answer = "借りた時のMCIDと完全に一致している必要があります。大文字・小文字もチェックしてみて！";
+  }
+
+  // AIの回答を表示（少し遅らせてリアリティを出す）
+  setTimeout(() => {
+    content.innerHTML += `<div style="margin-bottom: 10px;"><span style="background: #e1e6ef; padding: 8px 12px; border-radius: 15px 15px 15px 0; font-size: 0.85em; display: inline-block;">${answer}</span></div>`;
+    content.scrollTop = content.scrollHeight; // 最下部へスクロール
+  }, 500);
+}
 </script>
+
 </body>
 </html>
