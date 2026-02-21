@@ -7,164 +7,181 @@
   <title>出羽鯖 総合申請ポータル</title>
   <style>
     body { font-family: 'Helvetica Neue', Arial, sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f7f6; color: #333; }
-    .container { max-width: 700px; margin: 0 auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-
-    /* タブメニュー */
+    .container { max-width: 650px; margin: 0 auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
     .tabs { display: flex; margin-bottom: 20px; border-bottom: 2px solid #eee; }
-    .tab {
-      flex: 1; padding: 12px; text-align: center; cursor: pointer;
-      background: #f8f9fa; border-radius: 8px 8px 0 0; font-weight: bold; transition: 0.3s;
-    }
-    .tab.active { background: #2ecc71; color: white; }
-
-    .tab-content { display: none; }
+    .tab { flex: 1; padding: 12px; text-align: center; cursor: pointer; background: #f8f9fa; font-weight: bold; transition: 0.3s; }
+    .tab.active { background: #2ecc71; color: white; border-radius: 8px 8px 0 0; }
+    .tab-content { display: none; padding-top: 10px; }
     .tab-content.active { display: block; }
-
-    /* 通知・ステータス表示 */
-    .notice { background-color: #fff3cd; border-left: 5px solid #ffca28; padding: 15px; margin-bottom: 20px; font-size: 0.9em; }
-    .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 0.85em; font-weight: bold; }
-    .status-vacant { background: #d4edda; color: #155724; } /* 空車 */
-    .status-busy { background: #f8d7da; color: #721c24; }   /* 貸出中 */
-
-    h1 { color: #2c3e50; font-size: 1.5em; border-bottom: 2px solid #2ecc71; padding-bottom: 10px; margin-top: 0; }
+    .notice { background-color: #fff3cd; border-left: 5px solid #ffca28; padding: 15px; margin-bottom: 20px; font-size: 0.9em; border-radius: 4px; }
+    h1 { color: #2c3e50; font-size: 1.4em; border-bottom: 2px solid #2ecc71; padding-bottom: 8px; }
     label { font-weight: bold; display: block; margin-top: 15px; }
     input, select { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
-
-    button { width: 100%; margin-top: 25px; padding: 14px; cursor: pointer; background: #2ecc71; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 1em; transition: 0.3s; }
+    button { width: 100%; margin-top: 25px; padding: 14px; cursor: pointer; background: #2ecc71; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 1em; }
     button:hover { background: #27ae60; }
-    button:disabled { background: #ccc; cursor: not-allowed; }
-
-    /* テーブル */
+    button:disabled { background: #ccc; }
     table { width: 100%; border-collapse: collapse; margin-top: 15px; }
     th, td { border-bottom: 1px solid #eee; padding: 12px; text-align: left; }
-    th { background: #f8f9fa; color: #666; font-size: 0.9em; }
+    .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 0.8em; font-weight: bold; }
+    .status-vacant { background: #d4edda; color: #155724; }
+    .status-busy { background: #f8d7da; color: #721c24; }
+    #calcResult { margin-top: 15px; padding: 15px; background: #e8f4fd; border-radius: 6px; display: none; border: 1px solid #3498db; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="tabs">
-      <div class="tab active" data-tab="build">建築申請</div>
-      <div class="tab" data-tab="rentcar">レンタカー申請</div>
-      <div class="tab" data-tab="status">車両状況</div>
-    </div>
 
-    <div id="build" class="tab-content active">
-      <h1>建築申請フォーム</h1>
-      <div class="notice">申請後、運営の許可を待たずに建築を開始できます。</div>
-      <form id="requestForm">
-        <label>MCID</label><input type="text" name="mcid" required>
-        <label>種類</label>
-        <select name="type">
-          <option value="建物">建物</option>
-          <option value="道路">道路</option>
-          <option value="その他">その他</option>
-        </select>
-        <label>用途</label><input type="text" name="purpose" required>
-        <label>中心座標</label><input type="text" name="coords" placeholder="x, y, z" required>
-        <button type="submit" id="submitBtn">申請して建築を開始する</button>
-      </form>
-    </div>
-
-    <div id="rentcar" class="tab-content">
-      <h1>レンタカー申請</h1>
-      <form id="rentForm">
-        <label>MCID</label><input type="text" name="mcid" required>
-        <label>車両選択（貸出中は選択不可）</label>
-        <select name="number" id="carNumberSelect"></select>
-        <button type="submit" id="rentBtn">この車両を借りる</button>
-      </form>
-    </div>
-
-    <div id="status" class="tab-content">
-      <h1>車両貸出状況</h1>
-      <table id="statusTable">
-        <thead>
-          <tr><th>ナンバー</th><th>車種</th><th>状況</th></tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-      <button onclick="fetchCarData()" style="background:#3498db; margin-top:15px;">情報を更新する</button>
-    </div>
+<div class="container">
+  <div class="tabs">
+    <div class="tab active" data-tab="build">建築申請</div>
+    <div class="tab" data-tab="rentcar">借りる</div>
+    <div class="tab" data-tab="returncar">返却・計算</div>
+    <div class="tab" data-tab="status">状況</div>
   </div>
 
-  <script>
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbwsq8vd69zZf5FsTUxfa26PS7mB3n8jJEuRJ_Xck68XRZvExMIW3gRxxCDU7KLiyHKH/exec";
+  <div id="build" class="tab-content active">
+    <h1>建築申請</h1>
+    <form id="buildForm">
+      <label>MCID</label><input type="text" name="mcid" required>
+      <label>建築の種類</label>
+      <select name="type"><option value="建物">建物</option><option value="道路">道路</option><option value="その他">その他</option></select>
+      <label>用途</label><input type="text" name="purpose" required>
+      <label>中心座標</label><input type="text" name="coords" placeholder="例: 100, 64, -200" required>
+      <button type="submit" id="buildBtn">申請して建築を開始する</button>
+    </form>
+  </div>
 
-    // タブ切り替え
-    document.querySelectorAll(".tab").forEach(tab => {
-      tab.addEventListener("click", () => {
-        document.querySelectorAll(".tab, .tab-content").forEach(el => el.classList.remove("active"));
-        tab.classList.add("active");
-        document.getElementById(tab.dataset.tab).classList.add("active");
-      });
-    });
+  <div id="rentcar" class="tab-content">
+    <h1>レンタカーを借りる</h1>
+    <form id="rentForm">
+      <label>MCID</label><input type="text" name="mcid" required>
+      <label>車両を選択</label>
+      <select name="number" id="carSelect"></select>
+      <button type="submit" id="rentBtn">この内容で借りる</button>
+    </form>
+  </div>
 
-    // 車両データ取得と反映
-    function fetchCarData() {
-      const select = document.getElementById("carNumberSelect");
-      const tableBody = document.querySelector("#statusTable tbody");
+  <div id="returncar" class="tab-content">
+    <h1>レンタカー返却</h1>
+    <form id="returnForm">
+      <label>返却する車両のナンバー</label>
+      <select name="number" id="returnCarSelect"></select>
+      <button type="button" onclick="calculateFee()" style="background:#3498db;">料金を計算する</button>
       
-      tableBody.innerHTML = "<tr><td colspan='3'>読み込み中...</td></tr>";
+      <div id="calcResult">
+        <strong>【計算結果】</strong><br>
+        <span id="feeDetail"></span><br>
+        <span id="feeTotal" style="font-size:1.2em; color:red;"></span>
+      </div>
 
-      fetch(GAS_URL + "?mode=carlist")
-        .then(res => res.json())
-        .then(list => {
-          select.innerHTML = "";
-          tableBody.innerHTML = "";
-          
-          list.forEach(item => {
-            // プルダウン更新
-            const opt = document.createElement("option");
-            opt.value = item.number;
-            opt.textContent = `${item.number} : ${item.car} (${item.price}円)`;
-            if (item.status === "貸出中") {
-              opt.disabled = true;
-              opt.textContent += " [貸出中]";
-            }
-            select.appendChild(opt);
+      <button type="submit" id="returnBtn" style="background:#e67e22; display:none;">返却を確定する</button>
+    </form>
+  </div>
 
-            // テーブル更新
-            const tr = document.createElement("tr");
-            const sClass = item.status === "空車" ? "status-vacant" : "status-busy";
-            tr.innerHTML = `<td>${item.number}</td><td>${item.car}</td><td><span class="status-badge ${sClass}">${item.status}</span></td>`;
-            tableBody.appendChild(tr);
-          });
-        });
+  <div id="status" class="tab-content">
+    <h1>現在の貸出状況</h1>
+    <table id="statusTable">
+      <thead><tr><th>ナンバー</th><th>車種</th><th>状況</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  const GAS_URL = "ここにデプロイURLを貼る";
+
+  document.querySelectorAll(".tab").forEach(tab => {
+    tab.addEventListener("click", () => {
+      document.querySelectorAll(".tab, .tab-content").forEach(el => el.classList.remove("active"));
+      tab.classList.add("active");
+      document.getElementById(tab.dataset.tab).classList.add("active");
+    });
+  });
+
+  // 料金計算ロジック
+  let currentRentData = [];
+  function calculateFee() {
+    const num = document.getElementById("returnCarSelect").value;
+    const target = currentRentData.find(item => item.number == num);
+    
+    if (target && target.status === "貸出中") {
+      const now = new Date();
+      const rentDate = new Date(target.lastDate);
+      const diffTime = Math.abs(now - rentDate);
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); // 24時間単位で切り上げ
+      const totalFee = diffDays * target.price;
+
+      document.getElementById("feeDetail").innerHTML = `車種: ${target.car}<br>利用日数: ${diffDays}日 (1日 ${target.price}円)`;
+      document.getElementById("feeTotal").innerText = `合計金額: ${totalFee}円`;
+      document.getElementById("calcResult").style.display = "block";
+      document.getElementById("returnBtn").style.display = "block";
     }
+  }
 
-    // フォーム送信処理 (建築)
-    document.getElementById('requestForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      const btn = document.getElementById('submitBtn');
-      btn.disabled = true;
-      const data = new URLSearchParams(new FormData(this));
-      data.append('mode', 'build');
+  // 建築申請送信
+  document.getElementById("buildForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+    const btn = document.getElementById("buildBtn");
+    btn.disabled = true;
+    fetch(GAS_URL, { method: "POST", body: new URLSearchParams(new FormData(this)).append("mode","build") || new URLSearchParams([...new FormData(this), ["mode", "build"]]) })
+      .then(() => { alert("建築申請完了！"); this.reset(); })
+      .finally(() => btn.disabled = false);
+  });
 
-      fetch(GAS_URL, { method: 'POST', body: data }).then(() => {
-        alert("申請完了！");
-        this.reset();
-        btn.disabled = false;
+  // 借りる送信
+  document.getElementById("rentForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+    const btn = document.getElementById("rentBtn");
+    btn.disabled = true;
+    const data = new URLSearchParams(new FormData(this)); data.append("mode","rent");
+    fetch(GAS_URL, { method: "POST", body: data })
+      .then(() => { alert("レンタル開始！"); this.reset(); loadData(); })
+      .finally(() => btn.disabled = false);
+  });
+
+  // 返却送信
+  document.getElementById("returnForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+    const btn = document.getElementById("returnBtn");
+    btn.disabled = true;
+    const data = new URLSearchParams(new FormData(this)); data.append("mode","return");
+    fetch(GAS_URL, { method: "POST", body: data })
+      .then(() => { alert("返却が完了しました！"); this.reset(); document.getElementById("calcResult").style.display="none"; btn.style.display="none"; loadData(); })
+      .finally(() => btn.disabled = false);
+  });
+
+  function loadData() {
+    fetch(GAS_URL + "?mode=carlist")
+      .then(res => res.json())
+      .then(list => {
+        currentRentData = list;
+        const select = document.getElementById("carSelect");
+        const returnSelect = document.getElementById("returnCarSelect");
+        const tbody = document.querySelector("#statusTable tbody");
+        select.innerHTML = ""; returnSelect.innerHTML = ""; tbody.innerHTML = "";
+
+        list.forEach(item => {
+          // 借りるプルダウン
+          const opt = document.createElement("option");
+          opt.value = item.number; opt.textContent = `${item.number} : ${item.car}`;
+          if (item.status === "貸出中") opt.disabled = true;
+          select.appendChild(opt);
+
+          // 返却プルダウン (貸出中のものだけ)
+          if (item.status === "貸出中") {
+            const optR = document.createElement("option");
+            optR.value = item.number; optR.textContent = `${item.number} : ${item.car}`;
+            returnSelect.appendChild(optR);
+          }
+
+          // 状況テーブル
+          const tr = document.createElement("tr");
+          const sClass = item.status === "空車" ? "status-vacant" : "status-busy";
+          tr.innerHTML = `<td>${item.number}</td><td>${item.car}</td><td><span class="status-badge ${sClass}">${item.status}</span></td>`;
+          tbody.appendChild(tr);
+        });
       });
-    });
-
-    // フォーム送信処理 (レンタカー)
-    document.getElementById('rentForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      const btn = document.getElementById('rentBtn');
-      btn.disabled = true;
-      const data = new URLSearchParams(new FormData(this));
-      data.append('mode', 'rent');
-
-      fetch(GAS_URL, { method: 'POST', body: data }).then(() => {
-        alert("貸出処理が完了しました！");
-        this.reset();
-        btn.disabled = false;
-        fetchCarData(); // 状況を再読み込み
-      });
-    });
-
-    // 初期読み込み
-    fetchCarData();
-  </script>
+  }
+  loadData();
+</script>
 </body>
 </html>
