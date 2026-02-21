@@ -224,7 +224,7 @@ document.getElementById("buildForm").addEventListener("submit", function(e) {
   });
 });
 
-/* レンタル（2台制限対応） */
+/* レンタル（2台制限対応） - 修正版 */
 document.getElementById("rentForm").addEventListener("submit", function(e) {
   e.preventDefault();
   const data = new URLSearchParams(new FormData(this));
@@ -233,15 +233,25 @@ document.getElementById("rentForm").addEventListener("submit", function(e) {
   fetch(GAS_URL, { method:"POST", body:data })
   .then(res => res.text())
   .then(result => {
+    // console.log("Debug:", result); // デバッグ用：中身を確認したい場合
 
-    if (result.includes("Limit exceeded")) {
-      alert("同時レンタルは2台までです。3台目は借りられません。");
+    // 「Error」という文字が含まれている場合はすべて失敗として扱う
+    if (result.includes("Error")) {
+      if (result.includes("Limit exceeded")) {
+        alert("【制限エラー】同時レンタルは2台までです。3台目は借りられません。");
+      } else {
+        alert("【エラー】" + result);
+      }
       return;
     }
 
+    // Success の場合のみ開始アラートを出す
     alert("レンタル開始！");
     this.reset();
     loadData();
+  })
+  .catch(err => {
+    alert("通信エラーが発生しました。");
   });
 });
 
