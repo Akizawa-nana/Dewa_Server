@@ -88,10 +88,10 @@
 </div>
 
 <script>
-  // ここをあなたのURLに書き換えてください
-  const GAS_URL = "https://script.google.com/macros/s/AKfycbwsq8vd69zZf5FsTUxfa26PS7mB3n8jJEuRJ_Xck68XRZvExMIW3gRxxCDU7KLiyHKH/exec";
+  // GASのデプロイURL
+  const GAS_URL = "あなたのデプロイURLに書き換えてください";
 
-  // タブ切り替え処理
+  // タブ切り替え
   document.querySelectorAll(".tab").forEach(tab => {
     tab.addEventListener("click", () => {
       document.querySelectorAll(".tab, .tab-content").forEach(el => el.classList.remove("active"));
@@ -102,18 +102,14 @@
 
   let currentRentData = [];
 
-  // 料金計算
   function calculateFee() {
     const num = document.getElementById("returnCarSelect").value;
     const target = currentRentData.find(item => item.number == num);
-    
     if (target && target.status === "貸出中") {
       const now = new Date();
       const rentDate = new Date(target.lastDate);
-      const diffTime = Math.abs(now - rentDate);
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+      const diffDays = Math.ceil(Math.abs(now - rentDate) / (1000 * 60 * 60 * 24)); 
       const totalFee = diffDays * target.price;
-
       document.getElementById("feeDetail").innerHTML = `車種: ${target.car}<br>利用日数: ${diffDays}日 (1日 ${target.price}円)`;
       document.getElementById("feeTotal").innerText = `合計金額: ${totalFee}円`;
       document.getElementById("calcResult").style.display = "block";
@@ -121,49 +117,29 @@
     }
   }
 
-  // 建築申請送信
+  // 各フォーム送信
   document.getElementById("buildForm").addEventListener("submit", function(e) {
     e.preventDefault();
-    const btn = document.getElementById("buildBtn");
-    btn.disabled = true;
-    const data = new URLSearchParams(new FormData(this));
-    data.append("mode", "build");
-    fetch(GAS_URL, { method: "POST", body: data })
-      .then(() => { alert("建築申請完了！"); this.reset(); })
-      .finally(() => btn.disabled = false);
+    const btn = document.getElementById("buildBtn"); btn.disabled = true;
+    const data = new URLSearchParams(new FormData(this)); data.append("mode", "build");
+    fetch(GAS_URL, { method: "POST", body: data }).then(() => { alert("建築申請完了！"); this.reset(); }).finally(() => btn.disabled = false);
   });
 
-  // 借りる送信
   document.getElementById("rentForm").addEventListener("submit", function(e) {
     e.preventDefault();
-    const btn = document.getElementById("rentBtn");
-    btn.disabled = true;
-    const data = new URLSearchParams(new FormData(this));
-    data.append("mode", "rent");
-    fetch(GAS_URL, { method: "POST", body: data })
-      .then(() => { alert("レンタル開始！"); this.reset(); loadData(); })
-      .finally(() => btn.disabled = false);
+    const btn = document.getElementById("rentBtn"); btn.disabled = true;
+    const data = new URLSearchParams(new FormData(this)); data.append("mode", "rent");
+    fetch(GAS_URL, { method: "POST", body: data }).then(() => { alert("レンタル開始！"); this.reset(); loadData(); }).finally(() => btn.disabled = false);
   });
 
-  // 返却送信
   document.getElementById("returnForm").addEventListener("submit", function(e) {
     e.preventDefault();
-    const btn = document.getElementById("returnBtn");
-    btn.disabled = true;
-    const data = new URLSearchParams(new FormData(this));
-    data.append("mode", "return");
-    fetch(GAS_URL, { method: "POST", body: data })
-      .then(() => { 
-        alert("返却完了！"); 
-        this.reset(); 
-        document.getElementById("calcResult").style.display="none"; 
-        btn.style.display="none"; 
-        loadData(); 
-      })
-      .finally(() => btn.disabled = false);
+    const btn = document.getElementById("returnBtn"); btn.disabled = true;
+    const data = new URLSearchParams(new FormData(this)); data.append("mode", "return");
+    fetch(GAS_URL, { method: "POST", body: data }).then(() => { alert("返却完了！"); this.reset(); document.getElementById("calcResult").style.display="none"; btn.style.display="none"; loadData(); }).finally(() => btn.disabled = false);
   });
 
-  // データ読み込みとプルダウン/テーブル反映
+  // データ反映
   function loadData() {
     fetch(GAS_URL + "?mode=carlist")
       .then(res => res.json())
@@ -176,26 +152,27 @@
         select.innerHTML = ""; returnSelect.innerHTML = ""; tbody.innerHTML = "";
 
         list.forEach(item => {
-          // --- 1. 借りるタブのプルダウン ---
+          // --- 車両選択タブ（借りる）の表示形式変更 ---
           const opt = document.createElement("option");
           opt.value = item.number;
+          
           if (item.status === "貸出中") {
-            opt.textContent = `${item.number} : ${item.car} (貸出中)`;
-            opt.disabled = true; // 選択不可にする
+            // (例) ナンバー (車種) 貸出中
+            opt.textContent = `${item.number} (${item.car}) 貸出中`;
+            opt.disabled = true;
           } else {
-            opt.textContent = `${item.number} : ${item.car} (${item.price}円/日)`;
+            // (例) ナンバー (車種) 貸し出し料金:1日100円
+            opt.textContent = `${item.number} (${item.car}) 貸し出し料金:1日${item.price}円`;
           }
           select.appendChild(opt);
 
-          // --- 2. 返却タブのプルダウン (貸出中のみ表示) ---
           if (item.status === "貸出中") {
             const optR = document.createElement("option");
             optR.value = item.number;
-            optR.textContent = `${item.number} : ${item.car}`;
+            optR.textContent = `${item.number} (${item.car})`;
             returnSelect.appendChild(optR);
           }
 
-          // --- 3. 状況テーブル ---
           const tr = document.createElement("tr");
           const sClass = item.status === "空車" ? "status-vacant" : "status-busy";
           tr.innerHTML = `<td>${item.number}</td><td>${item.car}</td><td><span class="status-badge ${sClass}">${item.status}</span></td>`;
@@ -203,7 +180,6 @@
         });
       });
   }
-
   loadData();
 </script>
 </body>
