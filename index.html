@@ -4,143 +4,157 @@
   <base target="_top">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>出羽鯖 総合申請ポータル</title>
+  <title>出羽鯖 - 申請ポータル</title>
 
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;600;700&display=swap" rel="stylesheet">
 
   <style id="theme-styles">
-    /* --- デザイン切り替えスイッチ（右上・最小） --- */
+    /* --- 切り替えスイッチ（さらに小さく・控えめ） --- */
     .theme-switcher {
       position: fixed;
       top: 8px;
       right: 8px;
       z-index: 9999;
-      display: flex;
-      gap: 4px;
     }
     .theme-btn {
-      padding: 2px 6px;
+      padding: 3px 8px;
       cursor: pointer;
-      font-size: 0.65em;
+      font-size: 0.7em; 
       border-radius: 3px;
       transition: 0.3s;
-      opacity: 0.4;
+      opacity: 0.4; 
       background: transparent;
+      letter-spacing: 0;
       border: 1px solid #ccc;
       color: #888;
     }
-    .theme-btn:hover { opacity: 1; }
+    .theme-btn:hover {
+      opacity: 1;
+    }
 
-    /* --- 1. クリーン（デフォルト：theme-clean） --- */
+    /* --- 秋田モダン スタイル（theme-akita） --- */
+    :root {
+      --akita-red: #c0392b;
+      --akita-gold: #d4af37;
+      --akita-cedar: #1b2e1b;
+      --akita-sea: #0f172a;
+      --bg-color: #0d1117;
+      --card-bg: #161b22;
+      --text-color: #f0f6fc;
+      --border-color: #30363d;
+      --status-vacant: #2ea043;
+    }
+
+    body.theme-akita {
+      font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', sans-serif;
+      background-color: var(--akita-cedar);
+      background-image: linear-gradient(180deg, var(--akita-cedar) 0%, var(--bg-color) 100%);
+      color: var(--text-color);
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .theme-akita .theme-btn { border: 1px solid var(--akita-gold); color: var(--akita-gold); }
+    .theme-akita .container { width: 100%; max-width: 800px; animation: fadeIn 0.8s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .theme-akita .header { text-align: center; padding: 30px 0; border-bottom: 3px double var(--akita-gold); margin-bottom: 30px; }
+    .theme-akita .header h1 { margin: 0; font-size: 2.2em; color: var(--akita-gold); text-shadow: 2px 2px 4px rgba(0,0,0,0.8); letter-spacing: 4px; }
+    .theme-akita .tabs { display: flex; gap: 5px; margin-bottom: 25px; overflow-x: auto; }
+    .theme-akita .tab { padding: 12px 20px; cursor: pointer; background: var(--akita-sea); border: 1px solid var(--akita-gold); border-radius: 4px; color: var(--akita-gold); font-weight: bold; transition: 0.3s; flex: 1; text-align: center; }
+    .theme-akita .tab.active { background: var(--akita-gold); color: var(--akita-cedar); box-shadow: 0 0 15px rgba(212, 175, 55, 0.5); }
+    .theme-akita .tab-content { display: none; background: var(--card-bg); padding: 30px; border-radius: 8px; border: 1px solid var(--border-color); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+    .theme-akita .tab-content.active { display: block; }
+    .theme-akita .notice { background: rgba(192, 57, 43, 0.1); border-left: 4px solid var(--akita-red); padding: 15px; margin-bottom: 25px; color: #ff9999; }
+    .theme-akita label { display: block; margin-top: 20px; color: var(--akita-gold); font-size: 0.85em; }
+    .theme-akita input, .theme-akita select { width: 100%; padding: 12px; margin-top: 8px; background: #0d1117; border: 1px solid var(--border-color); border-radius: 4px; color: #fff; box-sizing: border-box;}
+    .theme-akita button { width: 100%; margin-top: 30px; padding: 15px; background: var(--akita-red); color: white; border: none; border-radius: 4px; font-size: 1.1em; font-weight: bold; cursor: pointer; box-shadow: 0 4px 0 #8e2a1e; transition: 0.1s; }
+    .theme-akita table { width: 100%; border-collapse: collapse; }
+    .theme-akita th { text-align: left; padding: 12px; border-bottom: 2px solid var(--akita-gold); color: var(--akita-gold); }
+    .theme-akita td { padding: 15px 12px; border-bottom: 1px solid var(--border-color); }
+    .theme-akita .status-badge { padding: 4px 10px; border-radius: 4px; font-size: 0.8em; font-weight: bold; }
+    .theme-akita .status-vacant { border: 1px solid var(--status-vacant); color: var(--status-vacant); }
+    .theme-akita .status-busy { border: 1px solid var(--akita-red); color: var(--akita-red); }
+    .theme-akita #calcResult { margin-top: 20px; padding: 20px; background: #000; border: 1px solid var(--akita-gold); border-radius: 4px; display: none; }
+
+    /* --- 総合申請ポータル（クリーン・theme-clean） --- */
     body.theme-clean { font-family: "Noto Sans JP", sans-serif; margin: 0; background: #f3f6fb; color: #1c2a44; letter-spacing: 0.04em; display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 20px; }
+    .theme-clean .theme-btn { border: 1px solid #b0b8c6; color: #b0b8c6; }
     .theme-clean .container { max-width: 720px; width: 100%; margin: 20px auto; background: #ffffff; padding: 35px; border: 1px solid #e1e6ef; box-shadow: 0 8px 25px rgba(20, 30, 60, 0.05); }
-    .theme-clean .header-title { text-align: center; font-size: 1.5em; font-weight: 700; margin-bottom: 30px; position: relative; }
-    .theme-clean .header-title::after { content: "❄"; position: absolute; right: -30px; top: 0; color: #c8a951; }
+    .theme-clean .header-title { text-align: center; font-size: 1.5em; font-weight: 700; margin-bottom: 30px; color: #1c2a44; position: relative; }
+    .theme-clean .header-title::after { content: "❄"; position: absolute; right: -30px; top: 0; color: #c8a951; font-size: 1.2em; }
     .theme-clean .tabs { display: flex; border-bottom: 2px solid #e3e8f2; margin-bottom: 25px; }
-    .theme-clean .tab { flex: 1; text-align: center; padding: 14px; cursor: pointer; font-weight: 600; border-bottom: 3px solid transparent; color: #1c2a44; }
+    .theme-clean .tab { flex: 1; text-align: center; padding: 14px; cursor: pointer; font-weight: 600; background: transparent; border-bottom: 3px solid transparent; transition: 0.3s; color: #1c2a44;}
+    .theme-clean .tab:hover { background: #f8faff; }
     .theme-clean .tab.active { color: #8c1f28; border-bottom: 3px solid #8c1f28; }
+    .theme-clean .tab-content { display: none; }
+    .theme-clean .tab-content.active { display: block; }
     .theme-clean h1 { font-size: 1.2em; border-left: 5px solid #c8a951; padding-left: 12px; margin-bottom: 20px; }
     .theme-clean .notice { background: #eef3fb; border-left: 4px solid #1c2a44; padding: 15px; font-size: 0.9em; margin-bottom: 20px; }
     .theme-clean label { display: block; margin-top: 18px; font-weight: 600; font-size: 0.9em; }
-    .theme-clean input, .theme-clean select { width: 100%; padding: 12px; margin-top: 6px; border: 1px solid #d4dae6; background: #f9fbff; border-radius: 4px; box-sizing: border-box; }
-    .theme-clean button { width: 100%; margin-top: 25px; padding: 14px; border: none; font-weight: 600; cursor: pointer; transition: 0.3s; }
-    .theme-clean .btn-primary { background: #1c2a44; color: white; }
-    .theme-clean .btn-calc { background: #c8a951; color: white; }
-    .theme-clean .btn-return { background: #8c1f28; color: white; }
-    .theme-clean .status-badge { padding: 5px 12px; font-size: 0.8em; font-weight: 600; border-radius: 4px; }
+    .theme-clean input, .theme-clean select { width: 100%; padding: 12px; margin-top: 6px; border: 1px solid #d4dae6; background: #f9fbff; font-size: 15px; transition: 0.2s; color: #1c2a44; box-sizing: border-box;}
+    .theme-clean button { width: 100%; margin-top: 28px; padding: 14px; background: #1c2a44; color: #ffffff; border: none; font-weight: 600; cursor: pointer; transition: 0.3s; }
+    .theme-clean button:hover { background: #8c1f28; }
+    .theme-clean table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    .theme-clean th { background: #1c2a44; color: white; padding: 12px; font-weight: 600; font-size: 0.9em; }
+    .theme-clean td { padding: 12px; border-bottom: 1px solid #e4e9f2; }
+    .theme-clean .status-badge { padding: 5px 12px; font-size: 0.8em; font-weight: 600; border-radius: 4px;}
     .theme-clean .status-vacant { background: #e6f0ff; color: #1c2a44; }
     .theme-clean .status-busy { background: #f8e6e6; color: #8c1f28; }
-    .theme-clean #calcResult { margin-top: 20px; padding: 18px; background: #f0f4fa; border: 1px solid #c8a951; border-radius: 4px; }
-
-    /* --- 2. 秋田モダン（theme-akita） --- */
-    body.theme-akita { font-family: 'Helvetica Neue', Arial, sans-serif; background-color: #1b2e1b; background-image: linear-gradient(180deg, #1b2e1b 0%, #0d1117 100%); color: #f0f6fc; margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 20px; }
-    .theme-akita .container { width: 100%; max-width: 800px; }
-    .theme-akita .header-title { text-align: center; padding: 30px 0; border-bottom: 3px double #d4af37; margin-bottom: 30px; font-size: 2em; color: #d4af37; text-shadow: 2px 2px 4px #000; letter-spacing: 4px; }
-    .theme-akita .tabs { display: flex; gap: 5px; margin-bottom: 25px; }
-    .theme-akita .tab { padding: 12px; cursor: pointer; background: #0f172a; border: 1px solid #d4af37; color: #d4af37; font-weight: bold; flex: 1; text-align: center; }
-    .theme-akita .tab.active { background: #d4af37; color: #1b2e1b; box-shadow: 0 0 15px rgba(212, 175, 55, 0.5); }
-    .theme-akita h1 { font-size: 1.4em; color: #d4af37; border-bottom: 1px solid #d4af37; padding-bottom: 10px; margin-bottom: 20px; }
-    .theme-akita .notice { background: rgba(192, 57, 43, 0.1); border-left: 4px solid #c0392b; padding: 15px; color: #ff9999; margin-bottom: 25px; }
-    .theme-akita label { display: block; margin-top: 20px; color: #d4af37; font-size: 0.85em; }
-    .theme-akita input, .theme-akita select { width: 100%; padding: 12px; margin-top: 8px; background: #0d1117; border: 1px solid #30363d; color: #fff; box-sizing: border-box; }
-    .theme-akita button { width: 100%; margin-top: 30px; padding: 15px; border: none; font-weight: bold; cursor: pointer; transition: 0.1s; }
-    .theme-akita .btn-primary { background: #c0392b; color: white; box-shadow: 0 4px 0 #8e2a1e; }
-    .theme-akita .btn-calc { background: #0f172a; color: #d4af37; border: 1px solid #d4af37; }
-    .theme-akita .btn-return { background: #c0392b; color: white; }
-    .theme-akita .status-badge { padding: 4px 10px; border-radius: 4px; font-size: 0.8em; font-weight: bold; }
-    .theme-akita .status-vacant { border: 1px solid #2ea043; color: #2ea043; }
-    .theme-akita .status-busy { border: 1px solid #c0392b; color: #c0392b; }
-    .theme-akita #calcResult { margin-top: 20px; padding: 20px; background: #000; border: 1px solid #d4af37; }
-
-    /* --- 3. ライト（theme-light） --- */
-    body.theme-light { font-family: 'Helvetica Neue', Arial, sans-serif; background-color: #f4f7f6; color: #333; margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 20px; }
-    .theme-light .container { max-width: 650px; width: 100%; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-    .theme-light .tabs { display: flex; margin-bottom: 20px; border-bottom: 2px solid #eee; }
-    .theme-light .tab { flex: 1; padding: 12px; text-align: center; cursor: pointer; background: #f8f9fa; font-weight: bold; color: #333; }
-    .theme-light .tab.active { background: #2ecc71; color: white; border-radius: 8px 8px 0 0; }
-    .theme-light h1 { color: #2c3e50; font-size: 1.4em; border-bottom: 2px solid #2ecc71; padding-bottom: 8px; margin-bottom: 15px; }
-    .theme-light .notice { background-color: #fff3cd; border-left: 5px solid #ffca28; padding: 15px; margin-bottom: 20px; font-size: 0.9em; border-radius: 4px; }
-    .theme-light label { font-weight: bold; display: block; margin-top: 15px; }
-    .theme-light input, .theme-light select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
-    .theme-light button { width: 100%; margin-top: 25px; padding: 14px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
-    .theme-light .btn-primary { background: #2ecc71; color: white; }
-    .theme-light .btn-calc { background: #3498db; color: white; }
-    .theme-light .btn-return { background: #e67e22; color: white; }
-    .theme-light .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 0.8em; font-weight: bold; }
-    .theme-light .status-vacant { background: #d4edda; color: #155724; }
-    .theme-light .status-busy { background: #f8d7da; color: #721c24; }
-    .theme-light #calcResult { margin-top: 15px; padding: 15px; background: #e8f4fd; border-radius: 6px; border: 1px solid #3498db; }
-
-    /* 表示切替用 */
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
-    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-    th, td { border-bottom: 1px solid #eee; padding: 12px; text-align: left; }
+    .theme-clean #calcResult { margin-top: 20px; padding: 18px; background: #f0f4fa; border: 1px solid #c8a951; display: none; }
   </style>
 </head>
 
 <body class="theme-clean">
 
   <div class="theme-switcher">
-    <button class="theme-btn" onclick="setTheme('clean')">Clean</button>
-    <button class="theme-btn" onclick="setTheme('akita')">Akita</button>
-    <button class="theme-btn" onclick="setTheme('light')">Light</button>
+    <button class="theme-btn" onclick="toggleTheme()">デザイン切り替え</button>
   </div>
 
   <div class="container">
-    <div class="header-title">出羽鯖 総合申請ポータル</div>
+    <div id="header-area">
+      <div class="header theme-only-akita" style="display:none;">
+        <h1>出羽鯖 - 秋田ポータル</h1>
+      </div>
+      <div class="header-title theme-only-clean">出羽鯖 総合申請ポータル</div>
+    </div>
 
     <div class="tabs">
       <div class="tab active" data-tab="build">建築申請</div>
-      <div class="tab" data-tab="rentcar">借用</div>
+      <div class="tab" data-tab="rentcar">車両借用</div>
       <div class="tab" data-tab="returncar">返却・精算</div>
-      <div class="tab" data-tab="status">状況</div>
+      <div class="tab" data-tab="status">貸出状況</div>
     </div>
 
     <div id="build" class="tab-content active">
-      <h1>建築申請フォーム</h1>
-      <div class="notice" id="buildNotice">申請完了後、直ちに施工可能。</div>
+      <h1>建築申請書</h1>
+      <div class="notice">
+        <span class="theme-only-akita" style="display:none;">悪い子は居ねがー！ルールを守って楽しく建築。</span>
+        <span class="theme-only-clean">申請完了後、直ちに施工可能。</span>
+      </div>
       <form id="buildForm">
-        <label>MCID</label><input type="text" name="mcid" placeholder="MCID" required>
+        <label>MCID</label><input type="text" name="mcid" placeholder="MCID" required="">
         <label>建築種別</label>
         <select name="type">
           <option value="建物">建物</option>
           <option value="道路">道路</option>
-          <option value="その他">その他</option>
+          <option value="公共施設">公共施設</option>
         </select>
-        <label>用途</label><input type="text" name="purpose" placeholder="例: きりたんぽ屋" required>
-        <label>中心座標</label><input type="text" name="coords" placeholder="x, y, z" required>
-        <button type="submit" id="buildBtn" class="btn-primary">申請提出</button>
+        <label>用途</label><input type="text" name="purpose" placeholder="例: きりたんぽ屋" required="">
+        <label>中心座標</label><input type="text" name="coords" placeholder="X, Y, Z" required="">
+        <button type="submit" id="buildBtn">申請提出</button>
       </form>
     </div>
 
     <div id="rentcar" class="tab-content">
       <h1>車両借用</h1>
       <form id="rentForm">
-        <label>MCID</label><input type="text" name="mcid" placeholder="MCID" required>
+        <label>MCID</label><input type="text" name="mcid" placeholder="MCID" required="">
         <label>車両番号</label>
         <select name="number" id="carSelect"></select>
-        <button type="submit" id="rentBtn" class="btn-primary">借用開始</button>
+        <button type="submit" id="rentBtn">借用開始</button>
       </form>
     </div>
 
@@ -149,15 +163,16 @@
       <form id="returnForm">
         <label>車両番号</label>
         <select name="number" id="returnCarSelect"></select>
-        <button type="button" onclick="calculateFee()" class="btn-calc">料金算出</button>
-
-        <div id="calcResult" style="display:none;">
-          <strong id="calcLabel">【計算結果】</strong><br>
+        <button type="button" onclick="calculateFee()" id="calc-fee-btn" style="background:#c8a951;">料金算出</button>
+        
+        <div id="calcResult">
+          <div class="theme-only-akita" style="display:none; color:var(--akita-gold); font-weight:bold; margin-bottom:10px;">精算明細</div>
+          <strong class="theme-only-clean">計算結果</strong><br>
           <span id="feeDetail"></span><br>
-          <span id="feeTotal" style="font-size:1.2em; font-weight:bold;"></span>
+          <span id="feeTotal" style="font-size:1.5em; font-weight:bold;"></span>
         </div>
 
-        <button type="submit" id="returnBtn" class="btn-return" style="display:none;">返却確定</button>
+        <button type="submit" id="returnBtn" style="display:none; margin-top:20px; background:#8c1f28;">返却確定</button>
       </form>
     </div>
 
@@ -173,19 +188,32 @@
   </div>
 
   <script>
-    // --- システム設定 (GAS URL) ---
+    // --- システム部分 (GAS連携ロジック) ---
     const GAS_URL = "https://script.google.com/macros/s/AKfycbwsq8vd69zZf5FsTUxfa26PS7mB3n8jJEuRJ_Xck68XRZvExMIW3gRxxCDU7KLiyHKH/exec";
 
-    // --- デザイン切り替えロジック ---
-    function setTheme(theme) {
-      document.body.className = 'theme-' + theme;
-      // 秋田モダン時のみ通知テキストを変えるなどの遊び心
-      const notice = document.getElementById('buildNotice');
-      if(theme === 'akita') notice.innerText = "悪い子は居ねがー！ルールを守って楽しく建築。";
-      else notice.innerText = "申請完了後、直ちに施工可能。";
+    // デザイン切り替え
+    function toggleTheme() {
+      const body = document.body;
+      const isClean = body.classList.contains('theme-clean');
+      
+      if (isClean) {
+        body.classList.replace('theme-clean', 'theme-akita');
+        document.querySelectorAll('.theme-only-clean').forEach(el => el.style.display = 'none');
+        document.querySelectorAll('.theme-only-akita').forEach(el => el.style.display = 'block');
+        document.getElementById('calc-fee-btn').style.background = 'var(--akita-sea)';
+        document.getElementById('calc-fee-btn').style.border = '1px solid var(--akita-gold)';
+        document.getElementById('returnBtn').style.background = 'var(--akita-red)';
+      } else {
+        body.classList.replace('theme-akita', 'theme-clean');
+        document.querySelectorAll('.theme-only-akita').forEach(el => el.style.display = 'none');
+        document.querySelectorAll('.theme-only-clean').forEach(el => el.style.display = 'block');
+        document.getElementById('calc-fee-btn').style.background = '#c8a951';
+        document.getElementById('calc-fee-btn').style.border = 'none';
+        document.getElementById('returnBtn').style.background = '#8c1f28';
+      }
     }
 
-    // --- タブ切り替えロジック ---
+    // タブ切り替え
     document.querySelectorAll(".tab").forEach(tab => {
       tab.addEventListener("click", () => {
         document.querySelectorAll(".tab, .tab-content").forEach(el => el.classList.remove("active"));
@@ -196,59 +224,56 @@
 
     let currentRentData = [];
 
-    // --- 料金計算ロジック (システム提供版) ---
+    // 料金計算
     function calculateFee() {
       const num = document.getElementById("returnCarSelect").value;
       const target = currentRentData.find(item => item.number == num);
       if (target && target.status === "貸出中") {
         const now = new Date();
         const rentDate = new Date(target.lastDate);
-        const diffDays = Math.ceil(Math.abs(now - rentDate) / (1000 * 60 * 60 * 24)); 
+        const diffDays = Math.max(1, Math.ceil(Math.abs(now - rentDate) / (1000 * 60 * 60 * 24)));
         const totalFee = diffDays * target.price;
         
-        document.getElementById("feeDetail").innerHTML = `車種: ${target.car}<br>利用日数: ${diffDays}日 (1日 ${target.price}円)`;
-        document.getElementById("feeTotal").innerText = `合計金額: ${totalFee}円`;
+        const isAkita = document.body.classList.contains('theme-akita');
+        if(isAkita) {
+          document.getElementById("feeDetail").innerHTML = `車種: ${target.car} / ${diffDays}日間`;
+          document.getElementById("feeTotal").style.color = "var(--akita-red)";
+        } else {
+          document.getElementById("feeDetail").innerHTML = `車種: ${target.car}<br>利用日数: ${diffDays}日 (1日 ${target.price}円)`;
+          document.getElementById("feeTotal").style.color = "#8c1f28";
+        }
         
-        // テーマによって金額の色を変える
-        const theme = document.body.className;
-        document.getElementById("feeTotal").style.color = (theme === 'theme-light') ? 'red' : (theme === 'theme-akita' ? '#ff9999' : '#8c1f28');
-        
+        document.getElementById("feeTotal").innerText = `合計: ${totalFee}円`;
         document.getElementById("calcResult").style.display = "block";
         document.getElementById("returnBtn").style.display = "block";
       }
     }
 
-    // --- GAS連携：建築申請 ---
+    // 建築申請送信
     document.getElementById("buildForm").addEventListener("submit", function(e) {
       e.preventDefault();
       const btn = document.getElementById("buildBtn"); btn.disabled = true;
       const data = new URLSearchParams(new FormData(this)); data.append("mode", "build");
-      fetch(GAS_URL, { method: "POST", body: data })
-        .then(() => { alert("建築申請を送信しました。"); this.reset(); })
-        .finally(() => btn.disabled = false);
+      fetch(GAS_URL, { method: "POST", body: data }).then(() => { alert("建築申請完了！"); this.reset(); }).finally(() => btn.disabled = false);
     });
 
-    // --- GAS連携：借用 ---
+    // 借りる送信
     document.getElementById("rentForm").addEventListener("submit", function(e) {
       e.preventDefault();
       const btn = document.getElementById("rentBtn"); btn.disabled = true;
       const data = new URLSearchParams(new FormData(this)); data.append("mode", "rent");
-      fetch(GAS_URL, { method: "POST", body: data })
-        .then(() => { alert("借用を開始しました。"); this.reset(); loadData(); })
-        .finally(() => btn.disabled = false);
+      fetch(GAS_URL, { method: "POST", body: data }).then(() => { alert("レンタル開始！"); this.reset(); loadData(); }).finally(() => btn.disabled = false);
     });
 
-    // --- GAS連携：返却 ---
+    // 返却送信
     document.getElementById("returnForm").addEventListener("submit", function(e) {
       e.preventDefault();
       const btn = document.getElementById("returnBtn"); btn.disabled = true;
       const data = new URLSearchParams(new FormData(this)); data.append("mode", "return");
-      fetch(GAS_URL, { method: "POST", body: data })
-        .then(() => { alert("返却・精算が完了しました。"); this.reset(); document.getElementById("calcResult").style.display="none"; btn.style.display="none"; loadData(); })
-        .finally(() => btn.disabled = false);
+      fetch(GAS_URL, { method: "POST", body: data }).then(() => { alert("返却完了！"); this.reset(); document.getElementById("calcResult").style.display="none"; btn.style.display="none"; loadData(); }).finally(() => btn.disabled = false);
     });
 
-    // --- データ反映 (GASから取得) ---
+    // データ反映
     function loadData() {
       fetch(GAS_URL + "?mode=carlist")
         .then(res => res.json())
@@ -261,18 +286,16 @@
           select.innerHTML = ""; returnSelect.innerHTML = ""; tbody.innerHTML = "";
 
           list.forEach(item => {
-            // 借用プルダウン
             const opt = document.createElement("option");
             opt.value = item.number;
             if (item.status === "貸出中") {
               opt.textContent = `${item.number} (${item.car}) 貸出中`;
               opt.disabled = true;
             } else {
-              opt.textContent = `${item.number} (${item.car}) - 1日${item.price}円`;
+              opt.textContent = `${item.number} (${item.car}) 1日:${item.price}円`;
             }
             select.appendChild(opt);
 
-            // 返却プルダウン
             if (item.status === "貸出中") {
               const optR = document.createElement("option");
               optR.value = item.number;
@@ -280,7 +303,6 @@
               returnSelect.appendChild(optR);
             }
 
-            // 状況テーブル
             const tr = document.createElement("tr");
             const isBusy = (item.status === "貸出中");
             const sClass = isBusy ? "status-busy" : "status-vacant";
@@ -291,7 +313,6 @@
         });
     }
 
-    // 初回読み込み
     loadData();
   </script>
 </body>
