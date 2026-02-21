@@ -131,8 +131,8 @@
     <div id="build" class="tab-content active">
       <h1>建築申請書</h1>
       <div class="notice">
-        <span class="theme-only-akita" style="display:none;">悪い子は居ねがー！ルールを守って楽しく建築。</span>
-        <span class="theme-only-clean">申請完了後、直ちに施工可能。</span>
+        <span class="theme-only-akita" style="display:none;">悪い子は居ねがー！申請完了後、直ちに建築可能です。</span>
+        <span class="theme-only-clean">申請完了後、直ちに建築可能です。</span>
       </div>
       <form id="buildForm">
         <label>MCID</label><input type="text" name="mcid" placeholder="MCID" required="">
@@ -149,19 +149,19 @@
     </div>
 
     <div id="rentcar" class="tab-content">
-      <h1>車両借用</h1>
+      <h1>車両レンタル</h1>
       <form id="rentForm">
         <label>MCID</label><input type="text" name="mcid" placeholder="MCID" required="">
-        <label>車両番号</label>
+        <label>車両ナンバー</label>
         <select name="number" id="carSelect"></select>
-        <button type="submit" id="rentBtn">借用開始</button>
+        <button type="submit" id="rentBtn">レンタル開始</button>
       </form>
     </div>
 
     <div id="returncar" class="tab-content">
       <h1>返却・料金精算</h1>
       <form id="returnForm">
-        <label>車両番号</label>
+        <label>車両ナンバー</label>
         <select name="number" id="returnCarSelect"></select>
         <button type="button" onclick="calculateFee()" id="calc-fee-btn" style="background:#c8a951;">料金算出</button>
         
