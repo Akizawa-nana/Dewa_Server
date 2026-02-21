@@ -128,192 +128,211 @@
       <div class="tab" data-tab="status">貸出状況</div>
     </div>
 
+    <!-- 建築 -->
     <div id="build" class="tab-content active">
       <h1>建築申請書</h1>
-      <div class="notice">
-        <span class="theme-only-akita" style="display:none;">悪い子は居ねがー！申請完了後、直ちに建築可能です。</span>
-        <span class="theme-only-clean">申請完了後、直ちに建築可能です。</span>
-      </div>
       <form id="buildForm">
-        <label>MCID</label><input type="text" name="mcid" placeholder="MCID" required="">
+        <label>MCID</label>
+        <input type="text" name="mcid" required>
+
         <label>建築種別</label>
         <select name="type">
           <option value="建物">建物</option>
           <option value="道路">道路</option>
           <option value="その他">その他</option>
         </select>
-        <label>用途</label><input type="text" name="purpose" placeholder="例: きりたんぽ屋" required="">
-        <label>中心座標</label><input type="text" name="coords" placeholder="X, Y, Z" required="">
+
+        <label>用途</label>
+        <input type="text" name="purpose" required>
+
+        <label>中心座標</label>
+        <input type="text" name="coords" required>
+
         <button type="submit" id="buildBtn">申請提出</button>
       </form>
     </div>
 
+    <!-- レンタル -->
     <div id="rentcar" class="tab-content">
       <h1>車両レンタル</h1>
       <form id="rentForm">
-        <label>MCID</label><input type="text" name="mcid" placeholder="MCID" required="">
+        <label>MCID</label>
+        <input type="text" name="mcid" required>
+
         <label>車両ナンバー</label>
         <select name="number" id="carSelect"></select>
+
         <button type="submit" id="rentBtn">レンタル開始</button>
       </form>
     </div>
 
+    <!-- 返却 -->
     <div id="returncar" class="tab-content">
       <h1>返却・料金精算</h1>
       <form id="returnForm">
         <label>車両ナンバー</label>
         <select name="number" id="returnCarSelect"></select>
-        <button type="button" onclick="calculateFee()" id="calc-fee-btn" style="background:#c8a951;">料金算出</button>
-        
-        <div id="calcResult">
-          <div class="theme-only-akita" style="display:none; color:var(--akita-gold); font-weight:bold; margin-bottom:10px;">精算明細</div>
-          <strong class="theme-only-clean">計算結果</strong><br>
-          <span id="feeDetail"></span><br>
-          <span id="feeTotal" style="font-size:1.5em; font-weight:bold;"></span>
+
+        <button type="button" onclick="calculateFee()">料金算出</button>
+
+        <div id="calcResult" style="display:none;">
+          <div id="feeDetail"></div>
+          <div id="feeTotal" style="font-size:1.3em; font-weight:bold;"></div>
         </div>
 
-        <button type="submit" id="returnBtn" style="display:none; margin-top:20px; background:#8c1f28;">返却確定</button>
+        <button type="submit" id="returnBtn" style="display:none;">返却確定</button>
       </form>
     </div>
 
+    <!-- 状況 -->
     <div id="status" class="tab-content">
       <h1>現在貸出状況</h1>
-      <table id="statusTable">
+      <table>
         <thead>
           <tr><th>番号</th><th>車種</th><th>状態</th></tr>
         </thead>
-        <tbody></tbody>
+        <tbody id="statusTable"></tbody>
       </table>
     </div>
   </div>
 
-  <script>
-    // --- システム部分 (GAS連携ロジック) ---
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbwsq8vd69zZf5FsTUxfa26PS7mB3n8jJEuRJ_Xck68XRZvExMIW3gRxxCDU7KLiyHKH/exec";
+<script>
 
-    // デザイン切り替え
-    function toggleTheme() {
-      const body = document.body;
-      const isClean = body.classList.contains('theme-clean');
-      
-      if (isClean) {
-        body.classList.replace('theme-clean', 'theme-akita');
-        document.querySelectorAll('.theme-only-clean').forEach(el => el.style.display = 'none');
-        document.querySelectorAll('.theme-only-akita').forEach(el => el.style.display = 'block');
-        document.getElementById('calc-fee-btn').style.background = 'var(--akita-sea)';
-        document.getElementById('calc-fee-btn').style.border = '1px solid var(--akita-gold)';
-        document.getElementById('returnBtn').style.background = 'var(--akita-red)';
-      } else {
-        body.classList.replace('theme-akita', 'theme-clean');
-        document.querySelectorAll('.theme-only-akita').forEach(el => el.style.display = 'none');
-        document.querySelectorAll('.theme-only-clean').forEach(el => el.style.display = 'block');
-        document.getElementById('calc-fee-btn').style.background = '#c8a951';
-        document.getElementById('calc-fee-btn').style.border = 'none';
-        document.getElementById('returnBtn').style.background = '#8c1f28';
-      }
+const GAS_URL = "あなたのGASのURLをここに入れてください";
+
+let currentRentData = [];
+
+/* タブ切替 */
+document.querySelectorAll(".tab").forEach(tab => {
+  tab.addEventListener("click", () => {
+    document.querySelectorAll(".tab, .tab-content").forEach(el => el.classList.remove("active"));
+    tab.classList.add("active");
+    document.getElementById(tab.dataset.tab).classList.add("active");
+  });
+});
+
+/* 建築 */
+document.getElementById("buildForm").addEventListener("submit", function(e) {
+  e.preventDefault();
+  const data = new URLSearchParams(new FormData(this));
+  data.append("mode", "build");
+
+  fetch(GAS_URL, { method:"POST", body:data })
+  .then(() => {
+    alert("建築申請完了！");
+    this.reset();
+  });
+});
+
+/* レンタル（2台制限対応） */
+document.getElementById("rentForm").addEventListener("submit", function(e) {
+  e.preventDefault();
+  const data = new URLSearchParams(new FormData(this));
+  data.append("mode", "rent");
+
+  fetch(GAS_URL, { method:"POST", body:data })
+  .then(res => res.text())
+  .then(result => {
+
+    if (result.includes("Limit exceeded")) {
+      alert("同時レンタルは2台までです。3台目は借りられません。");
+      return;
     }
 
-    // タブ切り替え
-    document.querySelectorAll(".tab").forEach(tab => {
-      tab.addEventListener("click", () => {
-        document.querySelectorAll(".tab, .tab-content").forEach(el => el.classList.remove("active"));
-        tab.classList.add("active");
-        document.getElementById(tab.dataset.tab).classList.add("active");
-      });
-    });
-
-    let currentRentData = [];
-
-    // 料金計算
-    function calculateFee() {
-      const num = document.getElementById("returnCarSelect").value;
-      const target = currentRentData.find(item => item.number == num);
-      if (target && target.status === "貸出中") {
-        const now = new Date();
-        const rentDate = new Date(target.lastDate);
-        const diffDays = Math.max(1, Math.ceil(Math.abs(now - rentDate) / (1000 * 60 * 60 * 24)));
-        const totalFee = diffDays * target.price;
-        
-        const isAkita = document.body.classList.contains('theme-akita');
-        if(isAkita) {
-          document.getElementById("feeDetail").innerHTML = `車種: ${target.car} / ${diffDays}日間`;
-          document.getElementById("feeTotal").style.color = "var(--akita-red)";
-        } else {
-          document.getElementById("feeDetail").innerHTML = `車種: ${target.car}<br>利用日数: ${diffDays}日 (1日 ${target.price}円)`;
-          document.getElementById("feeTotal").style.color = "#8c1f28";
-        }
-        
-        document.getElementById("feeTotal").innerText = `合計: ${totalFee}円`;
-        document.getElementById("calcResult").style.display = "block";
-        document.getElementById("returnBtn").style.display = "block";
-      }
-    }
-
-    // 建築申請送信
-    document.getElementById("buildForm").addEventListener("submit", function(e) {
-      e.preventDefault();
-      const btn = document.getElementById("buildBtn"); btn.disabled = true;
-      const data = new URLSearchParams(new FormData(this)); data.append("mode", "build");
-      fetch(GAS_URL, { method: "POST", body: data }).then(() => { alert("建築申請完了！"); this.reset(); }).finally(() => btn.disabled = false);
-    });
-
-    // 借りる送信
-    document.getElementById("rentForm").addEventListener("submit", function(e) {
-      e.preventDefault();
-      const btn = document.getElementById("rentBtn"); btn.disabled = true;
-      const data = new URLSearchParams(new FormData(this)); data.append("mode", "rent");
-      fetch(GAS_URL, { method: "POST", body: data }).then(() => { alert("レンタル開始！"); this.reset(); loadData(); }).finally(() => btn.disabled = false);
-    });
-
-    // 返却送信
-    document.getElementById("returnForm").addEventListener("submit", function(e) {
-      e.preventDefault();
-      const btn = document.getElementById("returnBtn"); btn.disabled = true;
-      const data = new URLSearchParams(new FormData(this)); data.append("mode", "return");
-      fetch(GAS_URL, { method: "POST", body: data }).then(() => { alert("返却完了！"); this.reset(); document.getElementById("calcResult").style.display="none"; btn.style.display="none"; loadData(); }).finally(() => btn.disabled = false);
-    });
-
-    // データ反映
-    function loadData() {
-      fetch(GAS_URL + "?mode=carlist")
-        .then(res => res.json())
-        .then(list => {
-          currentRentData = list;
-          const select = document.getElementById("carSelect");
-          const returnSelect = document.getElementById("returnCarSelect");
-          const tbody = document.querySelector("#statusTable tbody");
-
-          select.innerHTML = ""; returnSelect.innerHTML = ""; tbody.innerHTML = "";
-
-          list.forEach(item => {
-            const opt = document.createElement("option");
-            opt.value = item.number;
-            if (item.status === "貸出中") {
-              opt.textContent = `${item.number} (${item.car}) 貸出中`;
-              opt.disabled = true;
-            } else {
-              opt.textContent = `${item.number} (${item.car}) 1日:${item.price}円`;
-            }
-            select.appendChild(opt);
-
-            if (item.status === "貸出中") {
-              const optR = document.createElement("option");
-              optR.value = item.number;
-              optR.textContent = `${item.number} (${item.car})`;
-              returnSelect.appendChild(optR);
-            }
-
-            const tr = document.createElement("tr");
-            const isBusy = (item.status === "貸出中");
-            const sClass = isBusy ? "status-busy" : "status-vacant";
-            const sText = isBusy ? "貸出中" : "空車";
-            tr.innerHTML = `<td>${item.number}</td><td>${item.car}</td><td><span class="status-badge ${sClass}">${sText}</span></td>`;
-            tbody.appendChild(tr);
-          });
-        });
-    }
-
+    alert("レンタル開始！");
+    this.reset();
     loadData();
-  </script>
+  });
+});
+
+/* 返却 */
+document.getElementById("returnForm").addEventListener("submit", function(e) {
+  e.preventDefault();
+  const data = new URLSearchParams(new FormData(this));
+  data.append("mode", "return");
+
+  fetch(GAS_URL, { method:"POST", body:data })
+  .then(() => {
+    alert("返却完了！");
+    this.reset();
+    document.getElementById("calcResult").style.display="none";
+    document.getElementById("returnBtn").style.display="none";
+    loadData();
+  });
+});
+
+/* 料金計算 */
+function calculateFee() {
+  const num = document.getElementById("returnCarSelect").value;
+  const target = currentRentData.find(item => item.number == num);
+
+  if (target && target.status === "貸出中") {
+    const now = new Date();
+    const rentDate = new Date(target.lastDate);
+    const diffDays = Math.max(1, Math.ceil(Math.abs(now - rentDate)/(1000*60*60*24)));
+    const totalFee = diffDays * target.price;
+
+    document.getElementById("feeDetail").innerHTML =
+      `車種: ${target.car} / ${diffDays}日利用`;
+
+    document.getElementById("feeTotal").innerText =
+      `合計: ${totalFee}円`;
+
+    document.getElementById("calcResult").style.display="block";
+    document.getElementById("returnBtn").style.display="block";
+  }
+}
+
+/* データ読み込み */
+function loadData() {
+  fetch(GAS_URL + "?mode=carlist")
+  .then(res => res.json())
+  .then(list => {
+
+    currentRentData = list;
+
+    const select = document.getElementById("carSelect");
+    const returnSelect = document.getElementById("returnCarSelect");
+    const tbody = document.getElementById("statusTable");
+
+    select.innerHTML="";
+    returnSelect.innerHTML="";
+    tbody.innerHTML="";
+
+    list.forEach(item => {
+
+      const opt = document.createElement("option");
+      opt.value = item.number;
+
+      if (item.status === "貸出中") {
+        opt.textContent = `${item.number} (${item.car}) 貸出中`;
+        opt.disabled = true;
+      } else {
+        opt.textContent = `${item.number} (${item.car}) 1日:${item.price}円`;
+      }
+      select.appendChild(opt);
+
+      if (item.status === "貸出中") {
+        const optR = document.createElement("option");
+        optR.value = item.number;
+        optR.textContent = `${item.number} (${item.car})`;
+        returnSelect.appendChild(optR);
+      }
+
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${item.number}</td>
+        <td>${item.car}</td>
+        <td>${item.status}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  });
+}
+
+loadData();
+
+</script>
+
 </body>
 </html>
