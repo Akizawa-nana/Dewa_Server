@@ -26,10 +26,9 @@
       <div class="tab" data-tab="rentcar">車両レンタル</div>
       <div class="tab" data-tab="returncar">返却・精算</div>
       <div class="tab" data-tab="status">貸出状況</div>
-      <div class="tab" data-tab="manage">変更・事故報告</div>
     </div>
 
-    <div id="build" class="tab-content active">
+   <div id="build" class="tab-content active">
       <h2>建築申請書</h2>
       <form id="buildForm">
         <label>MCID</label>
@@ -78,37 +77,6 @@
       <h2>現在貸出状況</h2>
       <table><thead><tr><th>番号</th><th>車種</th><th>状態</th></tr></thead><tbody id="statusTable"></tbody></table>
     </div>
-
-    <div id="manage" class="tab-content">
-      <h2>申請変更・事故報告</h2>
-      <p style="font-size: 0.85em; color: #666; margin-bottom: 15px;">申請の修正・取り下げ、またはレンタカーの大破報告はこちらからお願いします。</p>
-      <form id="manageForm">
-        <label>MCID</label>
-        <input type="text" name="mcid" placeholder="例: Akita_Taro" required>
-        
-        <label>報告種別</label>
-        <select name="reportType" id="reportType" onchange="toggleManageFields()">
-          <option value="change">建築申請の内容変更</option>
-          <option value="delete">建築申請の取り下げ</option>
-          <option value="accident">【重要】レンタカーの大破・紛失</option>
-        </select>
-
-        <div id="buildFields">
-          <label>対象の座標（特定用）</label>
-          <input type="text" name="targetCoords" placeholder="例: 0,0,0">
-        </div>
-
-        <div id="carFields" style="display:none;">
-          <label>車両ナンバー</label>
-          <input type="text" name="carNumber" placeholder="例: 101">
-        </div>
-
-        <label>詳細内容（理由や状況）</label>
-        <textarea name="detail" placeholder="例: 座標を10,10,10に変更したい / 走行中に爆発して消失した" required style="width:100%; height:80px; margin-top:5px; padding:10px; border-radius:4px; border:1px solid #ddd; box-sizing:border-box; font-family: inherit;"></textarea>
-        
-        <button type="submit" class="main-submit">報告を送信する</button>
-      </form>
-    </div>
   </div>
 
   <div id="chat-container">
@@ -139,6 +107,7 @@
     let currentRentData = [];
     let currentFaqData = [];
 
+    // データの初期読み込み
     function loadData() {
       fetch(GAS_URL + "?mode=carlist").then(res => res.json()).then(list => {
         currentRentData = list;
@@ -156,6 +125,7 @@
       });
     }
 
+    // チャット開閉
     function toggleChat() {
       const win = document.getElementById('chat-window');
       const bubble = document.getElementById('chat-bubble');
@@ -169,10 +139,13 @@
       }
     }
 
+    // FAQメニュー（分類一覧）を表示
     function showFaqMenu(targetContainer = null) {
       const area = targetContainer || document.getElementById("faq-area");
       area.innerHTML = "";
+      // 分類の重複を除去してリスト作成
       const categories = [...new Set(currentFaqData.map(f => f.category || "その他"))];
+      
       categories.forEach(cat => {
         const b = document.createElement("button");
         b.className = "faq-btn category-btn";
@@ -183,9 +156,11 @@
       scrollToBottom();
     }
 
+    // カテゴリー内の質問を表示
     function showQuestionsByCategory(cat, targetContainer) {
       const area = targetContainer || document.getElementById("faq-area");
       area.innerHTML = `<div style="padding:5px; font-size:0.8em; color:#888; border-left:3px solid var(--sui-pink); margin-bottom:5px;">${cat}</div>`;
+      
       const filtered = currentFaqData.filter(f => (f.category || "その他") === cat);
       filtered.forEach(f => {
         const b = document.createElement("button");
@@ -194,6 +169,8 @@
         b.onclick = () => askChat(f.question);
         area.appendChild(b);
       });
+
+      // カテゴリーに戻るボタン
       const back = document.createElement("button");
       back.className = "back-btn";
       back.textContent = "← 分類一覧へ";
@@ -202,11 +179,13 @@
       scrollToBottom();
     }
 
+    // 質問への回答
     function askChat(q) {
       const content = document.getElementById('chat-content');
       const mainFaqArea = document.getElementById("faq-area");
       mainFaqArea.innerHTML = "";
       content.innerHTML += `<div style="width:100%; display:flex; margin-bottom:10px;"><div class="msg msg-user">${q}</div></div>`;
+      
       const faq = currentFaqData.find(f => f.question === q);
       setTimeout(() => {
         const responseId = "res-" + Date.now();
@@ -222,6 +201,7 @@
       }, 600);
     }
 
+    // 自由入力送信
     function handleSend() {
       const input = document.getElementById("userInput");
       const text = input.value.trim();
@@ -243,6 +223,7 @@
       }, 800);
     }
 
+    // 「他の質問をする」ボタン生成
     function addBackButton(targetId) {
       const nextArea = document.getElementById(targetId);
       const backBtn = document.createElement("button");
@@ -254,20 +235,7 @@
 
     function scrollToBottom() { const c = document.getElementById('chat-content'); c.scrollTop = c.scrollHeight; }
 
-    // 管理項目の切り替え
-    function toggleManageFields() {
-      const type = document.getElementById("reportType").value;
-      const buildFields = document.getElementById("buildFields");
-      const carFields = document.getElementById("carFields");
-      if (type === "accident") {
-        buildFields.style.display = "none";
-        carFields.style.display = "block";
-      } else {
-        buildFields.style.display = "block";
-        carFields.style.display = "none";
-      }
-    }
-
+    // タブ切り替え
     document.querySelectorAll(".tab").forEach(tab => {
       tab.addEventListener("click", () => {
         document.querySelectorAll(".tab, .tab-content").forEach(el => el.classList.remove("active"));
@@ -275,6 +243,7 @@
       });
     });
 
+    // デザイン切り替え
     function toggleTheme() {
       document.body.classList.toggle('theme-clean');
       document.body.classList.toggle('theme-akita');
@@ -298,6 +267,7 @@
       document.querySelectorAll('.theme-only-clean').forEach(e => e.style.display = isAkita ? 'none' : 'block');
     }
 
+    // 料金計算
     function calculateFee() {
       const m = document.getElementById("returnMcid").value; const n = document.getElementById("returnCarSelect").value;
       const t = currentRentData.find(i => i.number == n);
@@ -309,25 +279,13 @@
       } else { alert("MCIDが一致しません。"); }
     }
 
-    // フォーム送信処理
+    // 送信処理
     document.getElementById("buildForm").onsubmit = function(e) { e.preventDefault(); fetch(GAS_URL, {method:"POST", body:new URLSearchParams(new FormData(this)).append("mode","build")}).then(() => alert("申請完了")); };
     document.getElementById("rentForm").onsubmit = function(e) { e.preventDefault(); const d = new URLSearchParams(new FormData(this)); d.append("mode","rent"); fetch(GAS_URL, {method:"POST", body:d}).then(r=>r.text()).then(t => t.includes("Error")?alert("2台までです"):alert("レンタル開始")); };
     document.getElementById("returnForm").onsubmit = function(e) { e.preventDefault(); const d = new URLSearchParams(); d.append("mode","return"); d.append("mcid", document.getElementById("returnMcid").value); d.append("number", document.getElementById("returnCarSelect").value); fetch(GAS_URL, {method:"POST", body:d}).then(() => location.reload()); };
-    
-    // 変更・事故報告の送信
-    document.getElementById("manageForm").onsubmit = function(e) {
-      e.preventDefault();
-      const d = new URLSearchParams(new FormData(this));
-      d.append("mode", "manage");
-      fetch(GAS_URL, {method: "POST", body: d}).then(() => {
-        alert("報告を受理しました。");
-        this.reset();
-        toggleManageFields();
-      });
-    };
-
     document.getElementById("userInput").onkeypress = (e) => { if(e.key==="Enter") handleSend(); };
 
+    // 初期実行
     loadTheme();
     loadData();
   </script>
