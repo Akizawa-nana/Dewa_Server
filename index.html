@@ -184,12 +184,33 @@
       });
     });
 
-    function toggleTheme() {
-      document.body.classList.toggle('theme-clean'); document.body.classList.toggle('theme-akita');
-      const isAkita = document.body.classList.contains('theme-akita');
-      document.querySelectorAll('.theme-only-akita').forEach(e => e.style.display = isAkita ? 'block' : 'none');
-      document.querySelectorAll('.theme-only-clean').forEach(e => e.style.display = isAkita ? 'none' : 'block');
-    }
+  // デザイン切り替えと保存
+function toggleTheme() {
+  document.body.classList.toggle('theme-clean');
+  document.body.classList.toggle('theme-akita');
+  
+  const currentTheme = document.body.classList.contains('theme-akita') ? 'theme-akita' : 'theme-clean';
+  localStorage.setItem('selectedTheme', currentTheme); // ローカルストレージに保存
+  
+  updateThemeUI();
+}
+
+// ページを読み込んだ時に保存されたテーマを適用
+function loadTheme() {
+  const savedTheme = localStorage.getItem('selectedTheme');
+  if (savedTheme === 'theme-akita') {
+    document.body.classList.remove('theme-clean');
+    document.body.classList.add('theme-akita');
+  }
+  updateThemeUI();
+}
+
+// デザインに合わせて表示・非表示を切り替える共通処理
+function updateThemeUI() {
+  const isAkita = document.body.classList.contains('theme-akita');
+  document.querySelectorAll('.theme-only-akita').forEach(e => e.style.display = isAkita ? 'block' : 'none');
+  document.querySelectorAll('.theme-only-clean').forEach(e => e.style.display = isAkita ? 'none' : 'block');
+}
 
     function calculateFee() {
       const m = document.getElementById("returnMcid").value; const n = document.getElementById("returnCarSelect").value;
