@@ -8,8 +8,49 @@
   
   <link rel="stylesheet" href="style.css">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* 送信中オーバーレイのスタイル */
+    #loading-overlay {
+      display: none; /* 初期状態は非表示 */
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.9);
+      z-index: 10000;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Noto Sans JP', sans-serif;
+    }
+
+    .loading-img {
+      width: 150px;
+      height: auto;
+      animation: sui-bounce 1.5s infinite ease-in-out;
+    }
+
+    .loading-text {
+      margin-top: 20px;
+      font-size: 1.2em;
+      font-weight: bold;
+      color: #e91e63; /* すいちゃんカラー（ピンク） */
+      text-align: center;
+    }
+
+    @keyframes sui-bounce {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-20px) scale(1.05); }
+    }
+  </style>
 </head>
 <body class="theme-clean">
+
+  <div id="loading-overlay">
+    <img src="https://i0.wp.com/kizakurasui.jp/wp-content/uploads/2019/03/-e1552528466283.png" alt="すいちゃん" class="loading-img">
+    <div class="loading-text">送信中だすぃ！<br>ちょっとだけ待ってね...</div>
+  </div>
 
   <div class="theme-switcher"><button class="theme-btn" onclick="toggleTheme()">デザイン切り替え</button></div>
 
@@ -107,6 +148,11 @@
     let currentRentData = [];
     let currentFaqData = [];
 
+    // ローディング表示切り替え関数
+    function toggleLoading(show) {
+      document.getElementById("loading-overlay").style.display = show ? "flex" : "none";
+    }
+
     // データの初期読み込み
     function loadData() {
       fetch(GAS_URL + "?mode=carlist").then(res => res.json()).then(list => {
@@ -139,13 +185,11 @@
       }
     }
 
-    // FAQメニュー（分類一覧）を表示
+    // FAQメニューを表示
     function showFaqMenu(targetContainer = null) {
       const area = targetContainer || document.getElementById("faq-area");
       area.innerHTML = "";
-      // 分類の重複を除去してリスト作成
       const categories = [...new Set(currentFaqData.map(f => f.category || "その他"))];
-      
       categories.forEach(cat => {
         const b = document.createElement("button");
         b.className = "faq-btn category-btn";
@@ -160,7 +204,6 @@
     function showQuestionsByCategory(cat, targetContainer) {
       const area = targetContainer || document.getElementById("faq-area");
       area.innerHTML = `<div style="padding:5px; font-size:0.8em; color:#888; border-left:3px solid var(--sui-pink); margin-bottom:5px;">${cat}</div>`;
-      
       const filtered = currentFaqData.filter(f => (f.category || "その他") === cat);
       filtered.forEach(f => {
         const b = document.createElement("button");
@@ -169,8 +212,6 @@
         b.onclick = () => askChat(f.question);
         area.appendChild(b);
       });
-
-      // カテゴリーに戻るボタン
       const back = document.createElement("button");
       back.className = "back-btn";
       back.textContent = "← 分類一覧へ";
@@ -185,7 +226,6 @@
       const mainFaqArea = document.getElementById("faq-area");
       mainFaqArea.innerHTML = "";
       content.innerHTML += `<div style="width:100%; display:flex; margin-bottom:10px;"><div class="msg msg-user">${q}</div></div>`;
-      
       const faq = currentFaqData.find(f => f.question === q);
       setTimeout(() => {
         const responseId = "res-" + Date.now();
@@ -223,7 +263,6 @@
       }, 800);
     }
 
-    // 「他の質問をする」ボタン生成
     function addBackButton(targetId) {
       const nextArea = document.getElementById(targetId);
       const backBtn = document.createElement("button");
@@ -279,29 +318,64 @@
       } else { alert("MCIDが一致しません。"); }
     }
 
-    // 送信処理
-document.getElementById("buildForm").onsubmit = function(e) { 
-  e.preventDefault(); 
-  const formData = new FormData(this);
-  const params = new URLSearchParams();
-  
-  // modeを追加し、すべての入力内容をparamsに変換
-  params.append("mode", "build");
-  formData.forEach((value, key) => {
-    params.append(key, value);
-  });
+    // --- 送信処理（ローディング追加版） ---
 
-  fetch(GAS_URL, {
-    method: "POST", 
-    body: params,
-    mode: "no-cors" // CORSエラー対策
-  }).then(() => {
-    alert("建築申請を提出しました！");
-    this.reset();
-  }).catch(err => alert("送信エラーが発生しました"));
-};
-    document.getElementById("rentForm").onsubmit = function(e) { e.preventDefault(); const d = new URLSearchParams(new FormData(this)); d.append("mode","rent"); fetch(GAS_URL, {method:"POST", body:d}).then(r=>r.text()).then(t => t.includes("Error")?alert("2台までです"):alert("レンタル開始")); };
-    document.getElementById("returnForm").onsubmit = function(e) { e.preventDefault(); const d = new URLSearchParams(); d.append("mode","return"); d.append("mcid", document.getElementById("returnMcid").value); d.append("number", document.getElementById("returnCarSelect").value); fetch(GAS_URL, {method:"POST", body:d}).then(() => location.reload()); };
+    // 1. 建築申請
+    document.getElementById("buildForm").onsubmit = function(e) { 
+      e.preventDefault(); 
+      toggleLoading(true); // 送信中表示
+      const formData = new FormData(this);
+      const params = new URLSearchParams();
+      params.append("mode", "build");
+      formData.forEach((value, key) => { params.append(key, value); });
+
+      fetch(GAS_URL, {
+        method: "POST", 
+        body: params,
+        mode: "no-cors"
+      }).then(() => {
+        toggleLoading(false); // 表示終了
+        alert("建築申請を提出しました！");
+        this.reset();
+      }).catch(err => {
+        toggleLoading(false);
+        alert("送信エラーが発生しました");
+      });
+    };
+
+    // 2. レンタル開始
+    document.getElementById("rentForm").onsubmit = function(e) { 
+      e.preventDefault(); 
+      toggleLoading(true);
+      const d = new URLSearchParams(new FormData(this)); 
+      d.append("mode","rent"); 
+      fetch(GAS_URL, {method:"POST", body:d})
+        .then(r=>r.text())
+        .then(t => {
+          toggleLoading(false);
+          if(t.includes("Error")) alert("2台までです");
+          else { alert("レンタル開始！安全運転でね！"); location.reload(); }
+        })
+        .catch(() => { toggleLoading(false); alert("接続エラーだすぃ"); });
+    };
+
+    // 3. 返却確定
+    document.getElementById("returnForm").onsubmit = function(e) { 
+      e.preventDefault(); 
+      toggleLoading(true);
+      const d = new URLSearchParams(); 
+      d.append("mode","return"); 
+      d.append("mcid", document.getElementById("returnMcid").value); 
+      d.append("number", document.getElementById("returnCarSelect").value); 
+      fetch(GAS_URL, {method:"POST", body:d})
+        .then(() => {
+          toggleLoading(false);
+          alert("返却完了しました！おつかれさまだすぃ！");
+          location.reload();
+        })
+        .catch(() => { toggleLoading(false); alert("エラーだすぃ"); });
+    };
+
     document.getElementById("userInput").onkeypress = (e) => { if(e.key==="Enter") handleSend(); };
 
     // 初期実行
