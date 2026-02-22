@@ -51,7 +51,7 @@
       <form id="returnForm">
         <label>MCID（本人確認）</label><input type="text" id="returnMcid" required>
         <label>車両ナンバー</label><select id="returnCarSelect"></select>
-        <button type="button" onclick="calculateFee()" style="margin-top:10px;">料金算出</button>
+        <button type="button" class="main-submit" onclick="calculateFee()" style="margin-top:10px;">料金算出</button>
         <div id="calcResult" style="display:none; margin-top:15px; padding:15px; border:1px solid #ddd;">
           <div id="feeDetail"></div><div id="feeTotal" style="font-size:1.4em; font-weight:bold; color:var(--sui-pink);"></div>
           <button type="submit" class="main-submit" style="background:var(--sui-pink);">返却確定</button>
