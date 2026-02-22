@@ -20,13 +20,14 @@ function loadData() {
       tb.innerHTML += `<tr><td>${item.number}</td><td>${item.car}</td><td><span class="status-badge ${item.status==='貸出中'?'status-busy':'status-vacant'}">${item.status}</span></td></tr>`;
     });
   });
+
   fetch(GAS_URL + "?mode=faqlist").then(res => res.json()).then(faqs => { 
     currentFaqData = faqs; 
     showFaqMenu(); 
   });
 }
 
-// チャット開閉（すいちゃんのサイズ切り替え付き）
+// チャット開閉
 function toggleChat() {
   const win = document.getElementById('chat-window');
   const bubble = document.getElementById('chat-bubble');
@@ -35,24 +36,56 @@ function toggleChat() {
   win.style.display = isOpening ? 'flex' : 'none';
   
   if(isOpening) {
-    bubble.classList.add('chat-open'); // 小さくなるクラスを追加
+    bubble.classList.add('chat-open');
     scrollToBottom();
   } else {
-    bubble.classList.remove('chat-open'); // 元のサイズに戻す
+    bubble.classList.remove('chat-open');
   }
 }
 
-// メニュー（質問一覧）の描画
+// 【変更】メニュー（分類一覧）の描画
 function showFaqMenu(targetContainer = null) {
   const area = targetContainer || document.getElementById("faq-area");
   area.innerHTML = "";
-  currentFaqData.forEach(f => {
+
+  // カテゴリの重複を排除してリスト化
+  const categories = [...new Set(currentFaqData.map(f => f.category || "その他"))];
+
+  categories.forEach(cat => {
+    const b = document.createElement("button");
+    b.className = "faq-btn category-btn"; // 分類用クラス
+    b.style.backgroundColor = "#eef7ff";   // 簡易的なデザイン分け
+    b.style.border = "1px solid #90caf9";
+    b.textContent = "📁 " + cat;
+    b.onclick = () => showQuestionsByCategory(cat, targetContainer);
+    area.appendChild(b);
+  });
+  scrollToBottom();
+}
+
+// 【新規】特定の分類に属する質問一覧を表示
+function showQuestionsByCategory(cat, targetContainer) {
+  const area = targetContainer || document.getElementById("faq-area");
+  area.innerHTML = `<div style="padding:5px; font-size:0.8em; color:#888;">カテゴリ: ${cat}</div>`;
+
+  const filtered = currentFaqData.filter(f => (f.category || "その他") === cat);
+
+  filtered.forEach(f => {
     const b = document.createElement("button");
     b.className = "faq-btn";
     b.textContent = "📋 " + f.question;
     b.onclick = () => askChat(f.question);
     area.appendChild(b);
   });
+
+  // 戻るボタン
+  const back = document.createElement("button");
+  back.className = "back-btn";
+  back.style = "display:block; margin-top:5px; background:none; border:none; color:#007bff; cursor:pointer; font-size:0.85em; text-decoration:underline;";
+  back.textContent = "← 分類一覧へ戻る";
+  back.onclick = () => showFaqMenu(targetContainer);
+  area.appendChild(back);
+
   scrollToBottom();
 }
 
@@ -74,12 +107,12 @@ function askChat(q) {
       </div>
       <div id="${responseId}" style="margin-left:53px; margin-bottom:20px;"></div>
     `;
-    addBackButton(responseId); // 「他の質問をする」ボタンを生成
+    addBackButton(responseId);
     scrollToBottom();
   }, 600);
 }
 
-// 入力欄からの送信（ここを拡張）
+// 入力欄からの送信
 function handleSend() {
   const input = document.getElementById("userInput"); 
   const text = input.value.trim(); 
@@ -97,12 +130,12 @@ function handleSend() {
       </div>
       <div id="${responseId}" style="margin-left:53px; margin-bottom:20px;"></div>
     `;
-    addBackButton(responseId); // 自由入力時にもボタンを表示
+    addBackButton(responseId);
     scrollToBottom();
   }, 800);
 }
 
-// 「他の質問をする」ボタンを生成する共通関数
+// 「他の質問をする」ボタン（分類メニューに戻る）
 function addBackButton(targetId) {
   const nextArea = document.getElementById(targetId);
   const backBtn = document.createElement("button");
