@@ -10,6 +10,7 @@ function loadData() {
     const s1 = document.getElementById("carSelect"); 
     const s2 = document.getElementById("returnCarSelect"); 
     const tb = document.getElementById("statusTable");
+    if(!s1 || !s2 || !tb) return;
     s1.innerHTML = ""; s2.innerHTML = ""; tb.innerHTML = "";
     list.forEach(item => {
       if(item.status === "貸出中") {
@@ -31,10 +32,8 @@ function loadData() {
 function toggleChat() {
   const win = document.getElementById('chat-window');
   const bubble = document.getElementById('chat-bubble');
-  
   const isOpening = (win.style.display === 'none' || win.style.display === '');
   win.style.display = isOpening ? 'flex' : 'none';
-  
   if(isOpening) {
     bubble.classList.add('chat-open');
     scrollToBottom();
@@ -43,19 +42,14 @@ function toggleChat() {
   }
 }
 
-// 【変更】メニュー（分類一覧）の描画
+// FAQメニュー（分類一覧）の描画
 function showFaqMenu(targetContainer = null) {
   const area = targetContainer || document.getElementById("faq-area");
   area.innerHTML = "";
-
-  // カテゴリの重複を排除してリスト化
   const categories = [...new Set(currentFaqData.map(f => f.category || "その他"))];
-
   categories.forEach(cat => {
     const b = document.createElement("button");
-    b.className = "faq-btn category-btn"; // 分類用クラス
-    b.style.backgroundColor = "#eef7ff";   // 簡易的なデザイン分け
-    b.style.border = "1px solid #90caf9";
+    b.className = "faq-btn category-btn"; // CSSで装飾
     b.textContent = "📁 " + cat;
     b.onclick = () => showQuestionsByCategory(cat, targetContainer);
     area.appendChild(b);
@@ -63,13 +57,11 @@ function showFaqMenu(targetContainer = null) {
   scrollToBottom();
 }
 
-// 【新規】特定の分類に属する質問一覧を表示
+// 特定の分類に属する質問一覧を表示
 function showQuestionsByCategory(cat, targetContainer) {
   const area = targetContainer || document.getElementById("faq-area");
-  area.innerHTML = `<div style="padding:5px; font-size:0.8em; color:#888;">カテゴリ: ${cat}</div>`;
-
+  area.innerHTML = `<div style="padding:5px; font-size:0.85em; color:#888; border-left:3px solid var(--sui-pink); margin-bottom:8px;">カテゴリ: ${cat}</div>`;
   const filtered = currentFaqData.filter(f => (f.category || "その他") === cat);
-
   filtered.forEach(f => {
     const b = document.createElement("button");
     b.className = "faq-btn";
@@ -77,27 +69,20 @@ function showQuestionsByCategory(cat, targetContainer) {
     b.onclick = () => askChat(f.question);
     area.appendChild(b);
   });
-
-  // 戻るボタン
   const back = document.createElement("button");
   back.className = "back-btn";
-  back.style = "display:block; margin-top:5px; background:none; border:none; color:#007bff; cursor:pointer; font-size:0.85em; text-decoration:underline;";
   back.textContent = "← 分類一覧へ戻る";
   back.onclick = () => showFaqMenu(targetContainer);
   area.appendChild(back);
-
   scrollToBottom();
 }
 
-// 質問ボタンを投げた時の処理
 function askChat(q) {
   const content = document.getElementById('chat-content');
   const mainFaqArea = document.getElementById("faq-area");
   mainFaqArea.innerHTML = "";
   content.innerHTML += `<div style="width:100%; display:flex; margin-bottom:10px;"><div class="msg msg-user">${q}</div></div>`;
-  
   const faq = currentFaqData.find(f => f.question === q);
-  
   setTimeout(() => {
     const responseId = "res-" + Date.now();
     content.innerHTML += `
@@ -112,7 +97,6 @@ function askChat(q) {
   }, 600);
 }
 
-// 入力欄からの送信
 function handleSend() {
   const input = document.getElementById("userInput"); 
   const text = input.value.trim(); 
@@ -120,13 +104,12 @@ function handleSend() {
   const content = document.getElementById('chat-content');
   content.innerHTML += `<div style="width:100%; display:flex; margin-bottom:10px;"><div class="msg msg-user">${text}</div></div>`;
   input.value = "";
-  
   setTimeout(() => {
     const responseId = "res-send-" + Date.now();
     content.innerHTML += `
       <div class="msg-container" style="display:flex; align-items:flex-start;">
         <img src="${SUI_IMG}" class="bot-icon">
-        <div class="msg msg-bot">「${text}」ですね。ボタンメニューから選ぶか運営にお尋ねください！</div>
+        <div class="msg msg-bot">「${text}」ですね。ボタンメニューから選ぶかスタッフにお尋ねください！</div>
       </div>
       <div id="${responseId}" style="margin-left:53px; margin-bottom:20px;"></div>
     `;
@@ -135,7 +118,6 @@ function handleSend() {
   }, 800);
 }
 
-// 「他の質問をする」ボタン（分類メニューに戻る）
 function addBackButton(targetId) {
   const nextArea = document.getElementById(targetId);
   const backBtn = document.createElement("button");
@@ -159,10 +141,37 @@ document.querySelectorAll(".tab").forEach(tab => {
   });
 });
 
+// 管理・報告フォームの入力切り替え
+function toggleManageFields() {
+  const type = document.getElementById("reportType").value;
+  const buildFields = document.getElementById("buildFields");
+  const carFields = document.getElementById("carFields");
+  if (type === "accident") {
+    buildFields.style.display = "none";
+    carFields.style.display = "block";
+  } else {
+    buildFields.style.display = "block";
+    carFields.style.display = "none";
+  }
+}
+
 // テーマ切り替え
 function toggleTheme() {
   document.body.classList.toggle('theme-clean'); 
   document.body.classList.toggle('theme-akita');
+  const isAkita = document.body.classList.contains('theme-akita');
+  document.querySelectorAll('.theme-only-akita').forEach(e => e.style.display = isAkita ? 'block' : 'none');
+  document.querySelectorAll('.theme-only-clean').forEach(e => e.style.display = isAkita ? 'none' : 'block');
+  const theme = isAkita ? 'theme-akita' : 'theme-clean';
+  localStorage.setItem('selectedTheme', theme);
+}
+
+function loadTheme() {
+  const saved = localStorage.getItem('selectedTheme');
+  if (saved === 'theme-akita') {
+    document.body.classList.remove('theme-clean');
+    document.body.classList.add('theme-akita');
+  }
   const isAkita = document.body.classList.contains('theme-akita');
   document.querySelectorAll('.theme-only-akita').forEach(e => e.style.display = isAkita ? 'block' : 'none');
   document.querySelectorAll('.theme-only-clean').forEach(e => e.style.display = isAkita ? 'none' : 'block');
@@ -181,7 +190,7 @@ function calculateFee() {
   } else { alert("MCIDが一致しません。"); }
 }
 
-// 各種フォーム送信処理
+// フォーム送信処理
 document.getElementById("buildForm").onsubmit = function(e) { 
   e.preventDefault(); 
   fetch(GAS_URL, {method:"POST", body:new URLSearchParams(new FormData(this)).append("mode","build")}).then(() => alert("申請完了")); 
@@ -200,8 +209,19 @@ document.getElementById("returnForm").onsubmit = function(e) {
   d.append("number", document.getElementById("returnCarSelect").value); 
   fetch(GAS_URL, {method:"POST", body:d}).then(() => location.reload()); 
 };
+document.getElementById("manageForm").onsubmit = function(e) {
+  e.preventDefault();
+  const d = new URLSearchParams(new FormData(this));
+  d.append("mode", "manage");
+  fetch(GAS_URL, {method: "POST", body: d}).then(() => {
+    alert("報告を送信しました。");
+    this.reset();
+    toggleManageFields();
+  });
+};
 
 document.getElementById("userInput").onkeypress = (e) => { if(e.key==="Enter") handleSend(); };
 
 // 初期化実行
+loadTheme();
 loadData();
