@@ -280,7 +280,26 @@
     }
 
     // 送信処理
-    document.getElementById("buildForm").onsubmit = function(e) { e.preventDefault(); fetch(GAS_URL, {method:"POST", body:new URLSearchParams(new FormData(this)).append("mode","build")}).then(() => alert("申請完了")); };
+document.getElementById("buildForm").onsubmit = function(e) { 
+  e.preventDefault(); 
+  const formData = new FormData(this);
+  const params = new URLSearchParams();
+  
+  // modeを追加し、すべての入力内容をparamsに変換
+  params.append("mode", "build");
+  formData.forEach((value, key) => {
+    params.append(key, value);
+  });
+
+  fetch(GAS_URL, {
+    method: "POST", 
+    body: params,
+    mode: "no-cors" // CORSエラー対策
+  }).then(() => {
+    alert("建築申請を提出しました！");
+    this.reset();
+  }).catch(err => alert("送信エラーが発生しました"));
+};
     document.getElementById("rentForm").onsubmit = function(e) { e.preventDefault(); const d = new URLSearchParams(new FormData(this)); d.append("mode","rent"); fetch(GAS_URL, {method:"POST", body:d}).then(r=>r.text()).then(t => t.includes("Error")?alert("2台までです"):alert("レンタル開始")); };
     document.getElementById("returnForm").onsubmit = function(e) { e.preventDefault(); const d = new URLSearchParams(); d.append("mode","return"); d.append("mcid", document.getElementById("returnMcid").value); d.append("number", document.getElementById("returnCarSelect").value); fetch(GAS_URL, {method:"POST", body:d}).then(() => location.reload()); };
     document.getElementById("userInput").onkeypress = (e) => { if(e.key==="Enter") handleSend(); };
