@@ -5,90 +5,92 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>出羽鯖 - 申請ポータル</title>
-
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;600;700&display=swap" rel="stylesheet">
-
-  <style id="theme-styles">
-    /* --- 切り替えスイッチ --- */
-    .theme-switcher { position: fixed; top: 8px; right: 8px; z-index: 9999; }
-    .theme-btn { padding: 3px 8px; cursor: pointer; font-size: 0.7em; border-radius: 3px; transition: 0.3s; opacity: 0.4; background: transparent; border: 1px solid #ccc; color: #888; }
-    .theme-btn:hover { opacity: 1; }
-
-    /* --- 秋田モダン スタイル（theme-akita） --- */
+  <style>
+    /* --- 変数と基本設定 --- */
     :root {
       --akita-red: #c0392b; --akita-gold: #d4af37; --akita-cedar: #1b2e1b;
-      --akita-sea: #0f172a; --bg-color: #0d1117; --card-bg: #161b22;
-      --text-color: #f0f6fc; --border-color: #30363d; --status-vacant: #2ea043;
+      --akita-sea: #0f172a; --bg-dark: #0d1117; --card-dark: #161b22;
+      --clean-bg: #f3f6fb; --clean-main: #1c2a44; --clean-accent: #8c1f28;
+      --sui-blue: #bce9fe; --sui-pink: #e91e63;
     }
 
-    body.theme-akita {
-      font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', sans-serif;
-      background-color: var(--akita-cedar); background-image: linear-gradient(180deg, var(--akita-cedar) 0%, var(--bg-color) 100%);
-      color: var(--text-color); margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 20px;
-    }
-    .theme-akita .container { width: 100%; max-width: 800px; animation: fadeIn 0.8s ease-out; }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    .theme-akita .header { text-align: center; padding: 30px 0; border-bottom: 3px double var(--akita-gold); margin-bottom: 30px; }
-    .theme-akita .header h1 { margin: 0; font-size: 2.2em; color: var(--akita-gold); text-shadow: 2px 2px 4px rgba(0,0,0,0.8); letter-spacing: 4px; }
-    .theme-akita .tab { padding: 12px 20px; cursor: pointer; background: var(--akita-sea); border: 1px solid var(--akita-gold); border-radius: 4px; color: var(--akita-gold); font-weight: bold; flex: 1; text-align: center; }
+    body { margin: 0; transition: 0.3s; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+    
+    /* --- テーマ切り替え --- */
+    .theme-switcher { position: fixed; top: 8px; right: 8px; z-index: 10000; }
+    .theme-btn { padding: 4px 10px; cursor: pointer; font-size: 11px; border-radius: 4px; opacity: 0.5; background: #fff; border: 1px solid #ccc; }
+    .theme-btn:hover { opacity: 1; }
+
+    /* --- デザイン: クリーン --- */
+    body.theme-clean { font-family: "Noto Sans JP", sans-serif; background: var(--clean-bg); color: var(--clean-main); }
+    .theme-clean .container { max-width: 800px; width: 100%; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+    .theme-clean .tab.active { color: var(--clean-accent); border-bottom: 3px solid var(--clean-accent); }
+
+    /* --- デザイン: 秋田モダン --- */
+    body.theme-akita { font-family: serif; background: var(--akita-cedar); background-image: linear-gradient(180deg, var(--akita-cedar) 0%, var(--bg-dark) 100%); color: #f0f6fc; }
+    .theme-akita .container { max-width: 800px; width: 100%; background: var(--card-dark); padding: 30px; border: 1px solid var(--akita-gold); }
+    .theme-akita h1, .theme-akita h2 { color: var(--akita-gold); text-shadow: 1px 1px 2px #000; }
+    .theme-akita .tab { background: var(--akita-sea); color: var(--akita-gold); border: 1px solid var(--akita-gold); }
     .theme-akita .tab.active { background: var(--akita-gold); color: var(--akita-cedar); }
-    .theme-akita .tab-content { display: none; background: var(--card-bg); padding: 30px; border-radius: 8px; border: 1px solid var(--border-color); }
-    .theme-akita .tab-content.active { display: block; }
-    .theme-akita input, .theme-akita select { width: 100%; padding: 12px; margin-top: 8px; background: #0d1117; border: 1px solid var(--border-color); color: #fff; box-sizing: border-box;}
-    .theme-akita button { width: 100%; margin-top: 30px; padding: 15px; background: var(--akita-red); color: white; border: none; font-weight: bold; cursor: pointer; }
-    .theme-akita table { width: 100%; border-collapse: collapse; }
-    .theme-akita th { border-bottom: 2px solid var(--akita-gold); color: var(--akita-gold); padding: 10px; text-align: left;}
+    .theme-akita input, .theme-akita select { background: #000; color: #fff; border: 1px solid var(--akita-gold); }
+    .theme-akita button.main-submit { background: var(--akita-red); border-bottom: 4px solid #8e2a1e; }
 
-    /* --- 総合申請ポータル（クリーン・theme-clean） --- */
-    body.theme-clean { font-family: "Noto Sans JP", sans-serif; background: #f3f6fb; color: #1c2a44; display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 20px; }
-    .theme-clean .container { max-width: 720px; width: 100%; margin: 20px auto; background: #ffffff; padding: 35px; border: 1px solid #e1e6ef; box-shadow: 0 8px 25px rgba(20, 30, 60, 0.05); }
-    .theme-clean .header-title { text-align: center; font-size: 1.5em; font-weight: 700; margin-bottom: 30px; }
-    .theme-clean .tab { flex: 1; text-align: center; padding: 14px; cursor: pointer; font-weight: 600; color: #1c2a44; border-bottom: 3px solid transparent;}
-    .theme-clean .tab.active { color: #8c1f28; border-bottom: 3px solid #8c1f28; }
-    .theme-clean .tab-content { display: none; }
-    .theme-clean .tab-content.active { display: block; }
-    .theme-clean input, .theme-clean select { width: 100%; padding: 12px; margin-top: 6px; border: 1px solid #d4dae6; background: #f9fbff; box-sizing: border-box;}
-    .theme-clean button { width: 100%; margin-top: 28px; padding: 14px; background: #1c2a44; color: #ffffff; border: none; cursor: pointer; }
+    /* --- 共通 UI --- */
+    .tabs { display: flex; gap: 8px; margin-bottom: 25px; }
+    .tab { flex: 1; padding: 12px; text-align: center; cursor: pointer; font-weight: bold; transition: 0.2s; border-radius: 4px; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    label { display: block; margin-top: 15px; font-weight: bold; font-size: 0.9em; }
+    input, select { width: 100%; padding: 12px; margin-top: 5px; box-sizing: border-box; border: 1px solid #ddd; border-radius: 4px; }
+    button.main-submit { width: 100%; padding: 15px; margin-top: 20px; color: white; border: none; font-weight: bold; cursor: pointer; border-radius: 4px; font-size: 1.1em; }
+    .theme-clean button.main-submit { background: var(--clean-main); }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(128,128,128,0.2); }
+    .status-badge { padding: 4px 8px; border-radius: 4px; font-size: 0.8em; font-weight: bold; }
+    .status-vacant { background: #e6fcf0; color: #2ea043; border: 1px solid #2ea043; }
+    .status-busy { background: #fff1f0; color: #c0392b; border: 1px solid #c0392b; }
 
-    /* --- 共通パーツ --- */
-    .tabs { display: flex; gap: 5px; margin-bottom: 25px; }
-    .status-badge { padding: 4px 10px; border-radius: 4px; font-size: 0.8em; font-weight: bold; }
-    .status-vacant { background: #e6f0ff; color: #1c2a44; }
-    .status-busy { background: #f8e6e6; color: #8c1f28; }
-    #calcResult { margin-top: 20px; padding: 18px; background: rgba(128,128,128,0.1); border: 1px solid #ccc; display: none; }
+    /* --- すいちゃんチャットボット UI --- */
+    #chat-container { position: fixed; bottom: 20px; right: 20px; z-index: 10000; }
+    #chat-bubble { width: 70px; height: 70px; background: white; border-radius: 50%; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3); border: 2px solid var(--clean-main); overflow: hidden; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
+    #chat-bubble:hover { transform: scale(1.1); }
+    #chat-bubble img { width: 100%; height: 100%; object-fit: cover; }
 
-    /* --- チャットボットスタイル --- */
-    #chat-container { position: fixed; bottom: 20px; right: 20px; z-index: 10000; font-family: sans-serif; }
-    #chat-bubble { width: 60px; height: 60px; background: #1c2a44; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3); color: white; font-size: 24px; transition: 0.3s; }
-    .theme-akita #chat-bubble { background: var(--akita-red); border: 1px solid var(--akita-gold); }
-    #chat-window { display: none; width: 300px; background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 5px 25px rgba(0,0,0,0.2); margin-bottom: 15px; border: 1px solid #ddd; }
-    #chat-header { background: #1c2a44; color: white; padding: 15px; font-weight: bold; display: flex; justify-content: space-between; }
-    .theme-akita #chat-header { background: var(--akita-cedar); border-bottom: 1px solid var(--akita-gold); color: var(--akita-gold); }
-    #chat-content { height: 350px; overflow-y: auto; padding: 15px; background: #f9fbff; }
-    .theme-akita #chat-content { background: #0d1117; color: white; }
-    .faq-btn { width: 100%; padding: 8px; margin: 4px 0; border: 1px solid #ddd; border-radius: 20px; background: white; cursor: pointer; font-size: 0.85em; text-align: left; transition: 0.2s; }
-    .faq-btn:hover { background: #f0f4fa; }
-    .theme-akita .faq-btn { background: #161b22; color: var(--akita-gold); border-color: var(--akita-gold); }
-    .msg { margin-bottom: 10px; padding: 8px 12px; border-radius: 15px; font-size: 0.85em; line-height: 1.4; display: inline-block; max-width: 80%; }
-    .msg-bot { background: #eef3fb; color: #333; border-radius: 15px 15px 15px 0; }
-    .theme-akita .msg-bot { background: #30363d; color: white; }
-    .msg-user { background: #1c2a44; color: white; border-radius: 15px 15px 0 15px; float: right; }
-    .theme-akita .msg-user { background: var(--akita-red); }
+    #chat-window { display: none; width: 350px; height: 550px; background: white; border-radius: 15px; box-shadow: 0 5px 25px rgba(0,0,0,0.2); border: 1px solid #ddd; flex-direction: column; overflow: hidden; }
+    #chat-header { background: var(--clean-main); color: white; padding: 12px; font-weight: bold; display: flex; justify-content: space-between; }
+    .theme-akita #chat-header { background: var(--akita-cedar); color: var(--akita-gold); border-bottom: 1px solid var(--akita-gold); }
+    
+    #chat-content { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; background: #fff; }
+    .theme-akita #chat-content { background: #0d1117; }
+
+    .msg-container { display: flex; align-items: flex-start; margin-bottom: 15px; width: 100%; }
+    .bot-icon { width: 50px; height: auto; margin-right: 8px; flex-shrink: 0; border-radius: 50%; }
+    .msg-bot { background: var(--sui-blue); color: #333; padding: 12px; border-radius: 15px; border-top-left-radius: 0; font-size: 0.85em; max-width: 70%; line-height: 1.4; }
+    .theme-akita .msg-bot { background: #30363d; color: white; border: 1px solid var(--akita-gold); }
+    .msg-user { background: var(--clean-main); color: white; padding: 10px; border-radius: 15px; border-bottom-right-radius: 0; margin-left: auto; max-width: 75%; font-size: 0.85em; }
+
+    .faq-btn { width: 100%; padding: 10px; margin: 4px 0; border: 1px solid #ddd; border-radius: 20px; background: white; cursor: pointer; text-align: left; font-size: 0.85em; transition: 0.2s; }
+    .faq-btn:hover { background: var(--sui-blue); }
+    .back-btn { background: none; border: 1px solid #666; color: #666; border-radius: 5px; padding: 4px 8px; cursor: pointer; font-size: 0.75em; margin: 10px 0 0 58px; width: fit-content; }
+
+    .chat-footer { background: var(--sui-blue); padding: 10px; }
+    .theme-akita .chat-footer { background: var(--akita-cedar); }
+    .input-row { display: flex; gap: 5px; background: white; padding: 5px; border-radius: 5px; }
+    #userInput { flex: 1; border: none; padding: 5px; outline: none; margin: 0; background: transparent; color: #333; }
+    .send-btn { background: var(--sui-pink); color: white; border: none; padding: 5px 12px; border-radius: 4px; cursor: pointer; }
   </style>
 </head>
-
 <body class="theme-clean">
 
-  <div class="theme-switcher">
-    <button class="theme-btn" onclick="toggleTheme()">デザイン切り替え</button>
-  </div>
+  <div class="theme-switcher"><button class="theme-btn" onclick="toggleTheme()">デザイン切り替え</button></div>
 
   <div class="container">
     <div id="header-area">
-      <div class="header theme-only-akita" style="display:none;">
+      <div class="header theme-only-akita" style="display:none; text-align: center; margin-bottom: 20px; border-bottom: 3px double var(--akita-gold);">
         <h1>出羽鯖 - 秋田ポータル</h1>
       </div>
-      <div class="header-title theme-only-clean">出羽鯖 総合申請ポータル</div>
+      <div class="header-title theme-only-clean" style="text-align: center; font-size: 1.6em; font-weight: bold; margin-bottom: 25px;">出羽鯖 総合申請ポータル</div>
     </div>
 
     <div class="tabs">
@@ -99,42 +101,41 @@
     </div>
 
     <div id="build" class="tab-content active">
-      <h1>建築申請書</h1>
+      <h2>建築申請書</h2>
       <form id="buildForm">
-        <label>MCID</label><input type="text" name="mcid" required>
-        <label>建築種別</label>
-        <select name="type"><option value="建物">建物</option><option value="道路">道路</option><option value="その他">その他</option></select>
-        <label>用途</label><input type="text" name="purpose" required>
-        <label>中心座標</label><input type="text" name="coords" required>
-        <button type="submit">申請提出</button>
+        <label>MCID</label><input type="text" name="mcid" placeholder="例: Tarou_Akita" required>
+        <label>建築種別</label><select name="type"><option>建物</option><option>道路</option><option>鉄道</option><option>その他</option></select>
+        <label>用途</label><input type="text" name="purpose" placeholder="例: 自宅・商店" required>
+        <label>中心座標</label><input type="text" name="coords" placeholder="例: 100, 64, -200" required>
+        <button type="submit" class="main-submit">申請を提出する</button>
       </form>
     </div>
 
     <div id="rentcar" class="tab-content">
-      <h1>車両レンタル</h1>
+      <h2>車両レンタル</h2>
       <form id="rentForm">
         <label>MCID</label><input type="text" name="mcid" required>
-        <label>車両ナンバー</label><select name="number" id="carSelect"></select>
-        <button type="submit">レンタル開始</button>
+        <label>車両ナンバー</label><select name="number" id="carSelect"><option>読み込み中...</option></select>
+        <button type="submit" class="main-submit">レンタルを開始する</button>
       </form>
     </div>
 
     <div id="returncar" class="tab-content">
-      <h1>返却・料金精算</h1>
+      <h2>返却・料金精算</h2>
       <form id="returnForm">
-        <label>MCID（本人確認）</label><input type="text" id="returnMcid" placeholder="貸出時のMCIDを入力" required>
-        <label>車両ナンバー</label><select name="number" id="returnCarSelect"></select>
-        <button type="button" onclick="calculateFee()">料金算出・本人確認</button>
-        <div id="calcResult">
+        <label>MCID（本人確認）</label><input type="text" id="returnMcid" required>
+        <label>車両ナンバー</label><select id="returnCarSelect"></select>
+        <button type="button" onclick="calculateFee()" style="margin-top:10px;">料金を算出する</button>
+        <div id="calcResult" style="display:none; margin-top:15px; padding:15px; border:1px solid #ddd; background:rgba(0,0,0,0.05);">
           <div id="feeDetail"></div>
-          <div id="feeTotal" style="font-size:1.3em; font-weight:bold;"></div>
+          <div id="feeTotal" style="font-size:1.4em; font-weight:bold; color:var(--sui-pink);"></div>
+          <button type="submit" class="main-submit" style="background:var(--sui-pink);">返却を確定する</button>
         </div>
-        <button type="submit" id="returnBtn" style="display:none;">返却確定</button>
       </form>
     </div>
 
     <div id="status" class="tab-content">
-      <h1>現在貸出状況</h1>
+      <h2>現在貸出状況</h2>
       <table>
         <thead><tr><th>番号</th><th>車種</th><th>状態</th></tr></thead>
         <tbody id="statusTable"></tbody>
@@ -143,25 +144,110 @@
   </div>
 
   <div id="chat-container">
-    <div id="chat-bubble" onclick="toggleChat()">💬</div>
+    <div id="chat-bubble" onclick="toggleChat()">
+      <img src="https://i0.wp.com/kizakurasui.jp/wp-content/uploads/2019/03/-e1552528466283.png" alt="すいちゃん">
+    </div>
     <div id="chat-window">
-      <div id="chat-header">
-        <span>出羽鯖 ヘルプ</span>
-        <span style="cursor: pointer;" onclick="toggleChat()">×</span>
-      </div>
+      <div id="chat-header"><span>出羽鯖AIガイド「すい」</span><span onclick="toggleChat()" style="cursor:pointer">×</span></div>
       <div id="chat-content">
-        <div class="msg msg-bot">こんにちは！出羽鯖ガイドです。何かお手伝いしましょうか？</div>
-        <div id="faq-list"></div>
+        <div class="msg-container">
+          <img src="https://i0.wp.com/kizakurasui.jp/wp-content/uploads/2019/03/-e1552528466283.png" class="bot-icon">
+          <div class="msg msg-bot">由利本荘市AIチャットボットです！手続きなどについてお答えします！</div>
+        </div>
+        <div id="faq-area" style="margin-left:58px;"></div>
+      </div>
+      <div class="chat-footer">
+        <div style="font-size: 9px; color: #666; margin-bottom: 4px;">※個人情報は入力しないでください。</div>
+        <div class="input-row">
+          <input type="text" id="userInput" placeholder="質問を入力...">
+          <button class="send-btn" onclick="handleSend()">▲</button>
+        </div>
       </div>
     </div>
   </div>
 
 <script>
 const GAS_URL = "https://script.google.com/macros/s/AKfycbwsq8vd69zZf5FsTUxfa26PS7mB3n8jJEuRJ_Xck68XRZvExMIW3gRxxCDU7KLiyHKH/exec";
+const SUI_IMG = "https://i0.wp.com/kizakurasui.jp/wp-content/uploads/2019/03/-e1552528466283.png";
 let currentRentData = [];
 let currentFaqData = [];
 
-/* タブ切替 */
+// 初期ロード
+function loadData() {
+  fetch(GAS_URL + "?mode=carlist").then(res => res.json()).then(list => {
+    currentRentData = list;
+    const s1 = document.getElementById("carSelect");
+    const s2 = document.getElementById("returnCarSelect");
+    const tb = document.getElementById("statusTable");
+    s1.innerHTML = ""; s2.innerHTML = ""; tb.innerHTML = "";
+    list.forEach(item => {
+      if(item.status === "貸出中") {
+        s2.innerHTML += `<option value="${item.number}">${item.number} (${item.car})</option>`;
+      } else {
+        s1.innerHTML += `<option value="${item.number}">${item.number} (${item.car}) - ${item.price}円/日</option>`;
+      }
+      tb.innerHTML += `<tr><td>${item.number}</td><td>${item.car}</td><td><span class="status-badge ${item.status==='貸出中'?'status-busy':'status-vacant'}">${item.status}</span></td></tr>`;
+    });
+  });
+
+  fetch(GAS_URL + "?mode=faqlist").then(res => res.json()).then(faqs => {
+    currentFaqData = faqs;
+    showFaqMenu();
+  });
+}
+
+// チャット制御
+function toggleChat() {
+  const win = document.getElementById('chat-window');
+  win.style.display = (win.style.display === 'none' || win.style.display === '') ? 'flex' : 'none';
+  if(win.style.display === 'flex') scrollToBottom();
+}
+
+function showFaqMenu() {
+  const area = document.getElementById("faq-area");
+  area.innerHTML = "";
+  currentFaqData.forEach(f => {
+    const b = document.createElement("button");
+    b.className = "faq-btn"; b.textContent = "📋 " + f.question;
+    b.onclick = () => askChat(f.question);
+    area.appendChild(b);
+  });
+  scrollToBottom();
+}
+
+function askChat(q) {
+  const content = document.getElementById('chat-content');
+  const area = document.getElementById("faq-area");
+  content.innerHTML += `<div style="width:100%; display:flex; margin-bottom:10px;"><div class="msg msg-user">${q}</div></div>`;
+  area.innerHTML = "";
+
+  const faq = currentFaqData.find(f => f.question === q);
+  setTimeout(() => {
+    content.innerHTML += `<div class="msg-container"><img src="${SUI_IMG}" class="bot-icon"><div class="msg msg-bot">${faq?faq.answer:'わかりませんでした。'}</div></div>`;
+    const back = document.createElement("button");
+    back.className = "back-btn"; back.textContent = "← 他の質問をする";
+    back.onclick = showFaqMenu;
+    content.appendChild(back);
+    scrollToBottom();
+  }, 600);
+}
+
+function handleSend() {
+  const input = document.getElementById("userInput");
+  const text = input.value.trim();
+  if(!text) return;
+  const content = document.getElementById('chat-content');
+  content.innerHTML += `<div style="width:100%; display:flex; margin-bottom:10px;"><div class="msg msg-user">${text}</div></div>`;
+  input.value = "";
+  setTimeout(() => {
+    content.innerHTML += `<div class="msg-container"><img src="${SUI_IMG}" class="bot-icon"><div class="msg msg-bot">「${text}」についてですね。ボタンメニューから近いものを選んでいただくか、管理スタッフにお尋ねください！</div></div>`;
+    showFaqMenu();
+  }, 800);
+}
+
+function scrollToBottom() { const c = document.getElementById('chat-content'); c.scrollTop = c.scrollHeight; }
+
+// タブ・テーマ切り替え
 document.querySelectorAll(".tab").forEach(tab => {
   tab.addEventListener("click", () => {
     document.querySelectorAll(".tab, .tab-content").forEach(el => el.classList.remove("active"));
@@ -170,116 +256,44 @@ document.querySelectorAll(".tab").forEach(tab => {
   });
 });
 
-/* データ読み込み (車両リスト & FAQ) */
-function loadData() {
-  // 車両リスト
-  fetch(GAS_URL + "?mode=carlist")
-  .then(res => res.json())
-  .then(list => {
-    currentRentData = list;
-    const select = document.getElementById("carSelect");
-    const returnSelect = document.getElementById("returnCarSelect");
-    const tbody = document.getElementById("statusTable");
-    select.innerHTML=""; returnSelect.innerHTML=""; tbody.innerHTML="";
-    list.forEach(item => {
-      const opt = document.createElement("option");
-      opt.value = item.number;
-      if (item.status === "貸出中") {
-        opt.textContent = `${item.number} (${item.car}) 貸出中`; opt.disabled = true;
-        const optR = document.createElement("option");
-        optR.value = item.number; optR.textContent = `${item.number} (${item.car})`;
-        returnSelect.appendChild(optR);
-      } else {
-        opt.textContent = `${item.number} (${item.car}) 1日:${item.price}円`;
-      }
-      select.appendChild(opt);
-      const tr = document.createElement("tr");
-      const statusClass = (item.status === "貸出中") ? "status-busy" : "status-vacant";
-      tr.innerHTML = `<td>${item.number}</td><td>${item.car}</td><td><span class="status-badge ${statusClass}">${item.status}</span></td>`;
-      tbody.appendChild(tr);
-    });
-  });
-
-  // FAQリスト読み込み
-  fetch(GAS_URL + "?mode=faqlist")
-  .then(res => res.json())
-  .then(faqs => {
-    currentFaqData = faqs;
-    const faqListDiv = document.getElementById("faq-list");
-    faqListDiv.innerHTML = "";
-    faqs.forEach(item => {
-      const btn = document.createElement("button");
-      btn.className = "faq-btn";
-      btn.textContent = "❓ " + item.question;
-      btn.onclick = () => askChat(item.question);
-      faqListDiv.appendChild(btn);
-    });
-  });
-}
-
-/* チャット処理 */
-function toggleChat() {
-  const win = document.getElementById('chat-window');
-  win.style.display = win.style.display === 'none' ? 'block' : 'none';
-}
-
-function askChat(question) {
-  const content = document.getElementById('chat-content');
-  content.innerHTML += `<div style="width:100%; overflow:hidden;"><div class="msg msg-user">${question}</div></div>`;
-  
-  const faq = currentFaqData.find(f => f.question === question);
-  const answer = faq ? faq.answer : "お答えが見つかりませんでした。";
-
-  setTimeout(() => {
-    content.innerHTML += `<div class="msg msg-bot">${answer}</div>`;
-    content.scrollTop = content.scrollHeight;
-  }, 500);
-}
-
-/* デザイン切り替え */
 function toggleTheme() {
-  const body = document.body;
-  const akitaHeaders = document.querySelectorAll('.theme-only-akita');
-  const cleanHeaders = document.querySelectorAll('.theme-only-clean');
-  body.classList.toggle('theme-clean');
-  body.classList.toggle('theme-akita');
-  const isAkita = body.classList.contains('theme-akita');
-  akitaHeaders.forEach(el => el.style.display = isAkita ? 'block' : 'none');
-  cleanHeaders.forEach(el => el.style.display = isAkita ? 'none' : 'block');
+  document.body.classList.toggle('theme-clean');
+  document.body.classList.toggle('theme-akita');
+  const isAkita = document.body.classList.contains('theme-akita');
+  document.querySelectorAll('.theme-only-akita').forEach(e => e.style.display = isAkita ? 'block' : 'none');
+  document.querySelectorAll('.theme-only-clean').forEach(e => e.style.display = isAkita ? 'none' : 'block');
 }
 
-/* 建築・レンタル・返却の送信処理(省略せず維持) */
+// フォーム送信ロジック
 document.getElementById("buildForm").onsubmit = function(e) {
   e.preventDefault();
-  const data = new URLSearchParams(new FormData(this)); data.append("mode", "build");
-  fetch(GAS_URL, { method:"POST", body:data }).then(() => { alert("建築申請完了！"); this.reset(); });
+  fetch(GAS_URL, {method:"POST", body:new URLSearchParams(new FormData(this)).append("mode","build")}).then(() => alert("申請完了！"));
 };
 document.getElementById("rentForm").onsubmit = function(e) {
   e.preventDefault();
-  const data = new URLSearchParams(new FormData(this)); data.append("mode", "rent");
-  fetch(GAS_URL, { method:"POST", body:data }).then(res => res.text()).then(res => {
-    if(res.includes("Error")) alert("同時レンタルは2台までです。");
-    else { alert("レンタル開始！"); this.reset(); loadData(); }
-  });
-};
-document.getElementById("returnForm").onsubmit = function(e) {
-  e.preventDefault();
-  const data = new URLSearchParams(new FormData(this)); data.append("mode", "return");
-  fetch(GAS_URL, { method:"POST", body:data }).then(() => { alert("返却完了！"); this.reset(); loadData(); });
+  const d = new URLSearchParams(new FormData(this)); d.append("mode","rent");
+  fetch(GAS_URL, {method:"POST", body:d}).then(r=>r.text()).then(t => t.includes("Error")?alert("2台までです"):alert("レンタル開始！"));
 };
 function calculateFee() {
-  const mcid = document.getElementById("returnMcid").value.trim();
-  const num = document.getElementById("returnCarSelect").value;
-  const target = currentRentData.find(i => i.number == num);
-  if (target && target.mcid === mcid) {
-    const days = Math.max(1, Math.ceil(Math.abs(new Date() - new Date(target.lastDate))/(1000*60*60*24)));
-    document.getElementById("feeDetail").innerHTML = `借受人: ${target.mcid}<br>車種: ${target.car} / ${days}日利用`;
-    document.getElementById("feeTotal").innerText = `合計: ${days * target.price}円`;
-    document.getElementById("calcResult").style.display="block";
-    document.getElementById("returnBtn").style.display="block";
+  const m = document.getElementById("returnMcid").value;
+  const n = document.getElementById("returnCarSelect").value;
+  const t = currentRentData.find(i => i.number == n);
+  if(t && t.mcid === m) {
+    const days = Math.max(1, Math.ceil(Math.abs(new Date() - new Date(t.lastDate))/(1000*60*60*24)));
+    document.getElementById("feeDetail").innerHTML = `車種: ${t.car}<br>期間: ${days}日間`;
+    document.getElementById("feeTotal").innerText = `合計: ${days * t.price}円`;
+    document.getElementById("calcResult").style.display = "block";
   } else { alert("MCIDが一致しません。"); }
 }
+document.getElementById("returnForm").onsubmit = function(e) {
+  e.preventDefault();
+  const d = new URLSearchParams(); d.append("mode","return");
+  d.append("mcid", document.getElementById("returnMcid").value);
+  d.append("number", document.getElementById("returnCarSelect").value);
+  fetch(GAS_URL, {method:"POST", body:d}).then(() => location.reload());
+};
 
+document.getElementById("userInput").onkeypress = (e) => { if(e.key==="Enter") handleSend(); };
 loadData();
 </script>
 </body>
