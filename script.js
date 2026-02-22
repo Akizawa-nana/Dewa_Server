@@ -1,4 +1,4 @@
-const GAS_URL = "https://script.google.com/macros/s/AKfycbwsq8vd69zZf5FsTUxfa26PS7mB3n8jJEuRJ_Xck68XRZvExMIW3gRxxCDU7KLiyHKH/exec";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbxpOVwCM5EMuRlIwthT4Ckx_Iao9EY0QTPHzm0QfXxbElKHP-zhY8fj8rS4kYX9qaoA/exec";
 const SUI_IMG = "https://i0.wp.com/kizakurasui.jp/wp-content/uploads/2019/03/-e1552528466283.png";
 let currentRentData = [];
 let currentFaqData = [];
