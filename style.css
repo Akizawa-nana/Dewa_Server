@@ -90,14 +90,36 @@ body.theme-akita {
 }
 .theme-akita .tab { background: var(--akita-sea); color: var(--akita-gold); border: 1px solid var(--akita-gold); }
 .theme-akita .tab.active { background: var(--akita-gold); color: var(--akita-cedar); }
-.theme-akita input, .theme-akita select { background: #0d1117; border-color: #30363d; color: white; }
+.theme-akita input, .theme-akita select, .theme-akita textarea { background: #0d1117; border-color: #30363d; color: white; }
 
 /* --- 共通UI --- */
-.tabs { display: flex; gap: 8px; margin-bottom: 25px; }
-.tab { flex: 1; padding: 12px; text-align: center; cursor: pointer; font-weight: bold; border-radius: 4px; }
+.tabs { display: flex; gap: 8px; margin-bottom: 25px; flex-wrap: wrap; }
+.tab { flex: 1; min-width: 80px; padding: 12px; text-align: center; cursor: pointer; font-weight: bold; border-radius: 4px; }
 .tab-content { display: none; }
 .tab-content.active { display: block; }
-input, select { width: 100%; padding: 12px; margin-top: 5px; box-sizing: border-box; border: 1px solid #ddd; border-radius: 4px; }
+
+label {
+  display: block;
+  margin-top: 15px;
+  font-weight: bold;
+  font-size: 0.9em;
+}
+.theme-akita label { color: var(--akita-gold); }
+
+input, select, textarea { 
+  width: 100%; 
+  padding: 12px; 
+  margin-top: 5px; 
+  box-sizing: border-box; 
+  border: 1px solid #ddd; 
+  border-radius: 4px; 
+  font-family: inherit;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 80px;
+}
 
 /* --- ボタン --- */
 button.main-submit {
@@ -217,27 +239,35 @@ th, td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(128,128,
 .theme-akita #userInput { color: white; }
 .send-btn { background: var(--sui-pink); color: white; border: none; padding: 5px 12px; border-radius: 4px; cursor: pointer; }
 
+/* 動的フィールド切り替えのアニメーション */
+.field-group {
+  animation: fieldFadeIn 0.3s ease;
+}
+@keyframes fieldFadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 @media (max-width: 480px) {
   #chat-bubble { width: 100px; }
 }
 
 /* --- 送信中オーバーレイ（すいちゃん）の装飾 --- */
 #loading-overlay {
-  display: none; /* JSでflexに切り替え */
+  display: none;
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(255, 255, 255, 0.9); /* 白背景（透過） */
-  z-index: 100000; /* チャットよりも上に表示 */
+  background: rgba(255, 255, 255, 0.9);
+  z-index: 100000;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  backdrop-filter: blur(4px); /* 背景を少しぼかすとおしゃれ */
+  backdrop-filter: blur(4px);
 }
 
-/* 秋田モダンテーマの時は背景をダークに */
 .theme-akita #loading-overlay {
   background: rgba(13, 17, 23, 0.9);
 }
@@ -255,22 +285,18 @@ th, td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(128,128,
   font-weight: bold;
   color: var(--sui-pink);
   text-align: center;
-  text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
 }
 
 .theme-akita .loading-text {
   color: var(--akita-gold);
-  text-shadow: none;
 }
 
-/* ふわふわ浮くアニメーション */
 @keyframes sui-float {
   0% { transform: translateY(0) rotate(0deg); }
   50% { transform: translateY(-15px) rotate(5deg); }
   100% { transform: translateY(0) rotate(0deg); }
 }
 
-/* 送信中はスクロールを禁止するためのクラス（必要に応じてJSでbodyに付与） */
 .no-scroll {
   overflow: hidden;
 }
