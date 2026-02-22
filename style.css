@@ -220,3 +220,57 @@ th, td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(128,128,
 @media (max-width: 480px) {
   #chat-bubble { width: 100px; }
 }
+
+/* --- 送信中オーバーレイ（すいちゃん）の装飾 --- */
+#loading-overlay {
+  display: none; /* JSでflexに切り替え */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.9); /* 白背景（透過） */
+  z-index: 100000; /* チャットよりも上に表示 */
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px); /* 背景を少しぼかすとおしゃれ */
+}
+
+/* 秋田モダンテーマの時は背景をダークに */
+.theme-akita #loading-overlay {
+  background: rgba(13, 17, 23, 0.9);
+}
+
+.loading-img {
+  width: 140px;
+  height: auto;
+  filter: drop-shadow(0 0 10px rgba(233, 30, 99, 0.3));
+  animation: sui-float 1.8s infinite ease-in-out;
+}
+
+.loading-text {
+  margin-top: 25px;
+  font-size: 1.15em;
+  font-weight: bold;
+  color: var(--sui-pink);
+  text-align: center;
+  text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
+}
+
+.theme-akita .loading-text {
+  color: var(--akita-gold);
+  text-shadow: none;
+}
+
+/* ふわふわ浮くアニメーション */
+@keyframes sui-float {
+  0% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-15px) rotate(5deg); }
+  100% { transform: translateY(0) rotate(0deg); }
+}
+
+/* 送信中はスクロールを禁止するためのクラス（必要に応じてJSでbodyに付与） */
+.no-scroll {
+  overflow: hidden;
+}
