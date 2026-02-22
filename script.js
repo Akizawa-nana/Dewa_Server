@@ -5,6 +5,7 @@ let currentFaqData = [];
 
 // データの初期読み込み
 function loadData() {
+  // GETリクエストは比較的CORSエラーが起きにくい
   fetch(GAS_URL + "?mode=carlist")
     .then(res => res.json())
     .then(list => {
@@ -184,7 +185,7 @@ function calculateFee() {
   }
 }
 
-// --- フォーム送信共通処理 ---
+// --- フォーム送信共通処理 (CORS対策版) ---
 async function handleFormSubmit(form, mode) {
   const submitBtn = form.querySelector('button[type="submit"]');
   const originalText = submitBtn.innerText;
@@ -193,24 +194,34 @@ async function handleFormSubmit(form, mode) {
     submitBtn.disabled = true;
     submitBtn.innerText = "送信中...";
 
+    // FormDataからパラメータを作成
     const params = new URLSearchParams(new FormData(form));
     params.append("mode", mode);
 
+    // GASへのPOSTリクエスト
     const response = await fetch(GAS_URL, {
       method: "POST",
-      body: params
+      mode: "cors", // これによりブラウザにCORS通信であることを明示
+      body: params,
+      headers: {
+        "Accept": "application/json"
+      }
     });
 
-    const result = await response.text();
-    if (result.includes("Error")) {
-      alert("エラーが発生しました: " + result);
+    // レスポンスをJSONとして解析
+    const result = await response.json();
+
+    if (result.status === "error") {
+      alert("エラーが発生しました: " + result.message);
     } else {
-      alert("処理が完了しましたぃ！");
-      if (mode === 'return') location.reload();
+      alert("処理が完了しました！");
+      // 成功時はデータを最新にするためリロード
+      setTimeout(() => location.reload(), 500);
       form.reset();
     }
   } catch (err) {
-    alert("通信エラーが発生しました。");
+    console.error("Fetch error:", err);
+    alert("通信エラーが発生しました。GASのデプロイ設定が「全員」になっているか確認してください。");
   } finally {
     submitBtn.disabled = false;
     submitBtn.innerText = originalText;
@@ -228,7 +239,10 @@ if (manageForm) {
   manageForm.onsubmit = function(e) { e.preventDefault(); handleFormSubmit(this, "manage"); };
 }
 
-document.getElementById("userInput").onkeypress = (e) => { if (e.key === "Enter") handleSend(); };
+const userInput = document.getElementById("userInput");
+if(userInput) {
+  userInput.onkeypress = (e) => { if (e.key === "Enter") handleSend(); };
+}
 
 // 初期化実行
 loadTheme();
