@@ -26,11 +26,20 @@ function loadData() {
   });
 }
 
-// チャット開閉
+// チャット開閉（すいちゃんのサイズ切り替え付き）
 function toggleChat() {
   const win = document.getElementById('chat-window');
-  win.style.display = (win.style.display === 'none' || win.style.display === '') ? 'flex' : 'none';
-  if(win.style.display === 'flex') scrollToBottom();
+  const bubble = document.getElementById('chat-bubble');
+  
+  const isOpening = (win.style.display === 'none' || win.style.display === '');
+  win.style.display = isOpening ? 'flex' : 'none';
+  
+  if(isOpening) {
+    bubble.classList.add('chat-open'); // 小さくなるクラスを追加
+    scrollToBottom();
+  } else {
+    bubble.classList.remove('chat-open'); // 元のサイズに戻す
+  }
 }
 
 // メニュー（質問一覧）の描画
@@ -47,7 +56,7 @@ function showFaqMenu(targetContainer = null) {
   scrollToBottom();
 }
 
-// 質問を投げた時の処理
+// 質問ボタンを投げた時の処理
 function askChat(q) {
   const content = document.getElementById('chat-content');
   const mainFaqArea = document.getElementById("faq-area");
@@ -65,17 +74,12 @@ function askChat(q) {
       </div>
       <div id="${responseId}" style="margin-left:53px; margin-bottom:20px;"></div>
     `;
-    const nextArea = document.getElementById(responseId);
-    const backBtn = document.createElement("button");
-    backBtn.className = "back-btn";
-    backBtn.textContent = "← 他の質問をする";
-    backBtn.onclick = () => { backBtn.remove(); showFaqMenu(nextArea); };
-    nextArea.appendChild(backBtn);
+    addBackButton(responseId); // 「他の質問をする」ボタンを生成
     scrollToBottom();
   }, 600);
 }
 
-// 入力欄からの送信
+// 入力欄からの送信（ここを拡張）
 function handleSend() {
   const input = document.getElementById("userInput"); 
   const text = input.value.trim(); 
@@ -83,10 +87,32 @@ function handleSend() {
   const content = document.getElementById('chat-content');
   content.innerHTML += `<div style="width:100%; display:flex; margin-bottom:10px;"><div class="msg msg-user">${text}</div></div>`;
   input.value = "";
+  
   setTimeout(() => {
-    content.innerHTML += `<div class="msg-container" style="display:flex; align-items:flex-start;"><img src="${SUI_IMG}" class="bot-icon"><div class="msg msg-bot">「${text}」ですね。ボタンメニューから選ぶか運営にお尋ねください！</div></div>`;
-    showFaqMenu();
+    const responseId = "res-send-" + Date.now();
+    content.innerHTML += `
+      <div class="msg-container" style="display:flex; align-items:flex-start;">
+        <img src="${SUI_IMG}" class="bot-icon">
+        <div class="msg msg-bot">「${text}」ですね。ボタンメニューから選ぶか運営にお尋ねください！</div>
+      </div>
+      <div id="${responseId}" style="margin-left:53px; margin-bottom:20px;"></div>
+    `;
+    addBackButton(responseId); // 自由入力時にもボタンを表示
+    scrollToBottom();
   }, 800);
+}
+
+// 「他の質問をする」ボタンを生成する共通関数
+function addBackButton(targetId) {
+  const nextArea = document.getElementById(targetId);
+  const backBtn = document.createElement("button");
+  backBtn.className = "back-btn";
+  backBtn.textContent = "← 他の質問をする";
+  backBtn.onclick = () => { 
+    backBtn.remove(); 
+    showFaqMenu(nextArea); 
+  };
+  nextArea.appendChild(backBtn);
 }
 
 function scrollToBottom() { const c = document.getElementById('chat-content'); c.scrollTop = c.scrollHeight; }
