@@ -28,13 +28,25 @@
       <div class="tab" data-tab="status">貸出状況</div>
     </div>
 
-    <div id="build" class="tab-content active">
+   <div id="build" class="tab-content active">
       <h2>建築申請書</h2>
       <form id="buildForm">
-        <label>MCID</label><input type="text" name="mcid" placeholder="Tarou_Akita" required>
-        <label>建築種別</label><select name="type"><option>建物</option><option>道路</option><option>その他</option></select>
-        <label>用途</label><input type="text" name="purpose" required>
-        <label>中心座標</label><input type="text" name="coords" required>
+        <label>MCID</label>
+        <input type="text" name="mcid" placeholder="例: Akita_Taro" required>
+        
+        <label>建築種別</label>
+        <select name="type">
+          <option>建物</option>
+          <option>道路</option>
+          <option>その他</option>
+        </select>
+        
+        <label>用途</label>
+        <input type="text" name="purpose" placeholder="例: きりたんぽ屋" required>
+        
+        <label>中心座標</label>
+        <input type="text" name="coords" placeholder="例: 0,0,0" required>
+        
         <button type="submit" class="main-submit">申請を提出する</button>
       </form>
     </div>
