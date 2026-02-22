@@ -3,6 +3,14 @@ const SUI_IMG = "https://i0.wp.com/kizakurasui.jp/wp-content/uploads/2019/03/-e1
 let currentRentData = [];
 let currentFaqData = [];
 
+// 追加：ローディング表示切り替え関数
+function toggleLoading(show) {
+  const overlay = document.getElementById("loading-overlay");
+  if (overlay) {
+    overlay.style.display = show ? "flex" : "none";
+  }
+}
+
 // データの初期読み込み
 function loadData() {
   fetch(GAS_URL + "?mode=carlist").then(res => res.json()).then(list => {
@@ -42,14 +50,14 @@ function toggleChat() {
   }
 }
 
-// FAQメニュー（分類一覧）の描画
+// FAQメニュー描画
 function showFaqMenu(targetContainer = null) {
   const area = targetContainer || document.getElementById("faq-area");
   area.innerHTML = "";
   const categories = [...new Set(currentFaqData.map(f => f.category || "その他"))];
   categories.forEach(cat => {
     const b = document.createElement("button");
-    b.className = "faq-btn category-btn"; // CSSで装飾
+    b.className = "faq-btn category-btn";
     b.textContent = "📁 " + cat;
     b.onclick = () => showQuestionsByCategory(cat, targetContainer);
     area.appendChild(b);
@@ -57,7 +65,7 @@ function showFaqMenu(targetContainer = null) {
   scrollToBottom();
 }
 
-// 特定の分類に属する質問一覧を表示
+// 分類別質問表示
 function showQuestionsByCategory(cat, targetContainer) {
   const area = targetContainer || document.getElementById("faq-area");
   area.innerHTML = `<div style="padding:5px; font-size:0.85em; color:#888; border-left:3px solid var(--sui-pink); margin-bottom:8px;">カテゴリ: ${cat}</div>`;
@@ -123,10 +131,7 @@ function addBackButton(targetId) {
   const backBtn = document.createElement("button");
   backBtn.className = "back-btn";
   backBtn.textContent = "← 他の質問をする";
-  backBtn.onclick = () => { 
-    backBtn.remove(); 
-    showFaqMenu(nextArea); 
-  };
+  backBtn.onclick = () => { backBtn.remove(); showFaqMenu(nextArea); };
   nextArea.appendChild(backBtn);
 }
 
@@ -141,11 +146,12 @@ document.querySelectorAll(".tab").forEach(tab => {
   });
 });
 
-// 管理・報告フォームの入力切り替え
+// 管理・報告フォーム入力切り替え
 function toggleManageFields() {
   const type = document.getElementById("reportType").value;
   const buildFields = document.getElementById("buildFields");
   const carFields = document.getElementById("carFields");
+  if(!buildFields || !carFields) return;
   if (type === "accident") {
     buildFields.style.display = "none";
     carFields.style.display = "block";
@@ -190,38 +196,92 @@ function calculateFee() {
   } else { alert("MCIDが一致しません。"); }
 }
 
-// フォーム送信処理
+// --- フォーム送信処理（ここを大幅修正） ---
+
+// 1. 建築申請
 document.getElementById("buildForm").onsubmit = function(e) { 
   e.preventDefault(); 
-  fetch(GAS_URL, {method:"POST", body:new URLSearchParams(new FormData(this)).append("mode","build")}).then(() => alert("申請完了")); 
+  toggleLoading(true); // 表示開始
+  const d = new URLSearchParams(new FormData(this));
+  d.append("mode","build");
+  fetch(GAS_URL, {method:"POST", body: d})
+    .then(() => {
+      toggleLoading(false); // 表示終了
+      alert("申請完了だすぃ！");
+      this.reset();
+    })
+    .catch(() => {
+      toggleLoading(false);
+      alert("エラーが発生しました");
+    });
 };
+
+// 2. レンタル開始
 document.getElementById("rentForm").onsubmit = function(e) { 
   e.preventDefault(); 
+  toggleLoading(true); // 表示開始
   const d = new URLSearchParams(new FormData(this)); 
   d.append("mode","rent"); 
-  fetch(GAS_URL, {method:"POST", body:d}).then(r=>r.text()).then(t => t.includes("Error")?alert("2台までです"):alert("レンタル開始")); 
+  fetch(GAS_URL, {method:"POST", body:d})
+    .then(r=>r.text())
+    .then(t => {
+      toggleLoading(false); // 表示終了
+      if(t.includes("Error")) {
+        alert("2台までですだすぃ！");
+      } else {
+        alert("レンタル開始！安全運転でね！");
+        location.reload();
+      }
+    })
+    .catch(() => {
+      toggleLoading(false);
+      alert("エラーが発生しました");
+    });
 };
+
+// 3. 返却確定
 document.getElementById("returnForm").onsubmit = function(e) { 
   e.preventDefault(); 
+  toggleLoading(true); // 表示開始
   const d = new URLSearchParams(); 
   d.append("mode","return"); 
   d.append("mcid", document.getElementById("returnMcid").value); 
   d.append("number", document.getElementById("returnCarSelect").value); 
-  fetch(GAS_URL, {method:"POST", body:d}).then(() => location.reload()); 
+  fetch(GAS_URL, {method:"POST", body:d})
+    .then(() => {
+      toggleLoading(false); // 表示終了
+      alert("返却完了！お疲れさまだすぃ！");
+      location.reload();
+    })
+    .catch(() => {
+      toggleLoading(false);
+      alert("エラーが発生しました");
+    });
 };
+
+// 4. 管理報告
 document.getElementById("manageForm").onsubmit = function(e) {
   e.preventDefault();
+  toggleLoading(true); // 表示開始
   const d = new URLSearchParams(new FormData(this));
   d.append("mode", "manage");
-  fetch(GAS_URL, {method: "POST", body: d}).then(() => {
-    alert("報告を送信しました。");
-    this.reset();
-    toggleManageFields();
-  });
+  fetch(GAS_URL, {method: "POST", body: d})
+    .then(() => {
+      toggleLoading(false); // 表示終了
+      alert("報告を送信しました。ありがとうだすぃ！");
+      this.reset();
+      if(typeof toggleManageFields === "function") toggleManageFields();
+    })
+    .catch(() => {
+      toggleLoading(false);
+      alert("送信エラーだすぃ...");
+    });
 };
 
 document.getElementById("userInput").onkeypress = (e) => { if(e.key==="Enter") handleSend(); };
 
 // 初期化実行
-loadTheme();
-loadData();
+window.onload = () => {
+  loadTheme();
+  loadData();
+};
