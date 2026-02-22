@@ -84,7 +84,7 @@ function handleSend() {
   content.innerHTML += `<div style="width:100%; display:flex; margin-bottom:10px;"><div class="msg msg-user">${text}</div></div>`;
   input.value = "";
   setTimeout(() => {
-    content.innerHTML += `<div class="msg-container" style="display:flex; align-items:flex-start;"><img src="${SUI_IMG}" class="bot-icon"><div class="msg msg-bot">「${text}」ですね。ボタンメニューから選ぶかスタッフにお尋ねください！</div></div>`;
+    content.innerHTML += `<div class="msg-container" style="display:flex; align-items:flex-start;"><img src="${SUI_IMG}" class="bot-icon"><div class="msg msg-bot">「${text}」ですね。ボタンメニューから選ぶか運営にお尋ねください！</div></div>`;
     showFaqMenu();
   }, 800);
 }
