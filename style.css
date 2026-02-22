@@ -131,27 +131,58 @@ select {
   border-radius: 4px;
 }
 
+/* --- 料金算出ボタン（リッチ版） --- */
 button.main-submit {
   width: 100%;
-  padding: 15px;
+  padding: 18px;
   margin-top: 20px;
   color: white;
   border: none;
   font-weight: bold;
   cursor: pointer;
-  border-radius: 4px;
-  font-size: 1.1em;
+  border-radius: 8px;
+  font-size: 1.2em;
+  letter-spacing: 0.1em;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+button.main-submit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  filter: brightness(1.1);
+}
+
+button.main-submit:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
 .theme-clean button.main-submit {
-  background: var(--clean-main);
+  background: linear-gradient(135deg, var(--clean-main) 0%, #2c3e50 100%);
 }
 
 .theme-akita button.main-submit {
-  background: var(--akita-red);
-  border-bottom: 4px solid #8e2a1e;
+  background: linear-gradient(135deg, var(--akita-red) 0%, #a03026 100%);
+  border: 1px solid var(--akita-gold);
+  color: #fff;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
 }
 
+.theme-akita button.main-submit::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: var(--akita-gold);
+  opacity: 0.6;
+}
+
+/* --- テーブル & ステータスバッジ --- */
 table {
   width: 100%;
   border-collapse: collapse;
@@ -165,7 +196,6 @@ td {
   border-bottom: 1px solid rgba(128, 128, 128, 0.2);
 }
 
-/* --- ステータスバッジ配色（書き換え済み） --- */
 .status-badge {
   padding: 4px 10px;
   border-radius: 20px;
@@ -176,7 +206,7 @@ td {
   min-width: 60px;
 }
 
-/* クリーンテーマのバッジ：視認性の高い青と赤 */
+/* クリーンテーマ：明快な配色 */
 .theme-clean .status-vacant {
   background: #e6f7ff;
   color: #0070cc;
@@ -188,12 +218,11 @@ td {
   border: 1px solid #ffa39e;
 }
 
-/* 秋田モダンテーマのバッジ：和風・高級感のある金と赤 */
+/* 秋田モダン：和風・高級感 */
 .theme-akita .status-vacant {
-  background: rgba(212, 175, 55, 0.1); /* ほんのり金色の背景 */
+  background: rgba(212, 175, 55, 0.1);
   color: var(--akita-gold);
   border: 1px solid var(--akita-gold);
-  box-shadow: 0 0 5px rgba(212, 175, 55, 0.2);
 }
 .theme-akita .status-busy {
   background: var(--akita-red);
