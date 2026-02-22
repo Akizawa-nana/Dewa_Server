@@ -3,11 +3,14 @@ const SUI_IMG = "https://i0.wp.com/kizakurasui.jp/wp-content/uploads/2019/03/-e1
 let currentRentData = [];
 let currentFaqData = [];
 
-// 追加：ローディング表示切り替え関数
+// --- ユーティリティ・表示制御 ---
+
+// ローディング表示切り替え
 function toggleLoading(show) {
   const overlay = document.getElementById("loading-overlay");
   if (overlay) {
     overlay.style.display = show ? "flex" : "none";
+    document.body.classList.toggle('no-scroll', show);
   }
 }
 
@@ -36,7 +39,8 @@ function loadData() {
   });
 }
 
-// チャット開閉
+// --- チャットボット機能 ---
+
 function toggleChat() {
   const win = document.getElementById('chat-window');
   const bubble = document.getElementById('chat-bubble');
@@ -50,7 +54,6 @@ function toggleChat() {
   }
 }
 
-// FAQメニュー描画
 function showFaqMenu(targetContainer = null) {
   const area = targetContainer || document.getElementById("faq-area");
   area.innerHTML = "";
@@ -65,7 +68,6 @@ function showFaqMenu(targetContainer = null) {
   scrollToBottom();
 }
 
-// 分類別質問表示
 function showQuestionsByCategory(cat, targetContainer) {
   const area = targetContainer || document.getElementById("faq-area");
   area.innerHTML = `<div style="padding:5px; font-size:0.85em; color:#888; border-left:3px solid var(--sui-pink); margin-bottom:8px;">カテゴリ: ${cat}</div>`;
@@ -94,9 +96,9 @@ function askChat(q) {
   setTimeout(() => {
     const responseId = "res-" + Date.now();
     content.innerHTML += `
-      <div class="msg-container" style="display:flex; align-items:flex-start;">
+      <div class="msg-container">
         <img src="${SUI_IMG}" class="bot-icon">
-        <div class="msg msg-bot">${faq ? faq.answer : 'すみません、わかりませんでした。'}</div>
+        <div class="msg-bot">${faq ? faq.answer : 'すみません、わかりませんでした。'}</div>
       </div>
       <div id="${responseId}" style="margin-left:53px; margin-bottom:20px;"></div>
     `;
@@ -115,9 +117,9 @@ function handleSend() {
   setTimeout(() => {
     const responseId = "res-send-" + Date.now();
     content.innerHTML += `
-      <div class="msg-container" style="display:flex; align-items:flex-start;">
+      <div class="msg-container">
         <img src="${SUI_IMG}" class="bot-icon">
-        <div class="msg msg-bot">「${text}」ですね。ボタンメニューから選ぶかスタッフにお尋ねください！</div>
+        <div class="msg-bot">「${text}」ですね。ボタンメニューから選ぶかスタッフにお尋ねください！</div>
       </div>
       <div id="${responseId}" style="margin-left:53px; margin-bottom:20px;"></div>
     `;
@@ -137,6 +139,8 @@ function addBackButton(targetId) {
 
 function scrollToBottom() { const c = document.getElementById('chat-content'); c.scrollTop = c.scrollHeight; }
 
+// --- UI・テーマ制御 ---
+
 // タブ切り替え
 document.querySelectorAll(".tab").forEach(tab => {
   tab.addEventListener("click", () => {
@@ -146,19 +150,17 @@ document.querySelectorAll(".tab").forEach(tab => {
   });
 });
 
-// 管理・報告フォーム入力切り替え
+// 管理・報告フォーム入力切り替え（その他でお問い合わせを非表示に修正）
 function toggleManageFields() {
   const type = document.getElementById("reportType").value;
   const buildFields = document.getElementById("buildFields");
   const carFields = document.getElementById("carFields");
   if(!buildFields || !carFields) return;
-  if (type === "accident") {
-    buildFields.style.display = "none";
-    carFields.style.display = "block";
-  } else {
-    buildFields.style.display = "block";
-    carFields.style.display = "none";
-  }
+
+  // 建築関連(build_info)の時だけ座標表示
+  buildFields.style.display = (type === "build_info") ? "block" : "none";
+  // 事故関連(accident)の時だけ車両番号表示
+  carFields.style.display = (type === "accident") ? "block" : "none";
 }
 
 // テーマ切り替え
@@ -166,21 +168,21 @@ function toggleTheme() {
   document.body.classList.toggle('theme-clean'); 
   document.body.classList.toggle('theme-akita');
   const isAkita = document.body.classList.contains('theme-akita');
-  document.querySelectorAll('.theme-only-akita').forEach(e => e.style.display = isAkita ? 'block' : 'none');
-  document.querySelectorAll('.theme-only-clean').forEach(e => e.style.display = isAkita ? 'none' : 'block');
   const theme = isAkita ? 'theme-akita' : 'theme-clean';
   localStorage.setItem('selectedTheme', theme);
+  applyThemeUI(isAkita);
+}
+
+function applyThemeUI(isAkita) {
+  document.querySelectorAll('.theme-only-akita').forEach(e => e.style.display = isAkita ? 'block' : 'none');
+  document.querySelectorAll('.theme-only-clean').forEach(e => e.style.display = isAkita ? 'none' : 'block');
 }
 
 function loadTheme() {
-  const saved = localStorage.getItem('selectedTheme');
-  if (saved === 'theme-akita') {
-    document.body.classList.remove('theme-clean');
-    document.body.classList.add('theme-akita');
-  }
-  const isAkita = document.body.classList.contains('theme-akita');
-  document.querySelectorAll('.theme-only-akita').forEach(e => e.style.display = isAkita ? 'block' : 'none');
-  document.querySelectorAll('.theme-only-clean').forEach(e => e.style.display = isAkita ? 'none' : 'block');
+  const saved = localStorage.getItem('selectedTheme') || 'theme-clean';
+  document.body.classList.remove('theme-clean', 'theme-akita');
+  document.body.classList.add(saved);
+  applyThemeUI(saved === 'theme-akita');
 }
 
 // 料金計算
@@ -196,17 +198,17 @@ function calculateFee() {
   } else { alert("MCIDが一致しません。"); }
 }
 
-// --- フォーム送信処理（ここを大幅修正） ---
+// --- フォーム送信処理 ---
 
 // 1. 建築申請
 document.getElementById("buildForm").onsubmit = function(e) { 
   e.preventDefault(); 
-  toggleLoading(true); // 表示開始
+  toggleLoading(true);
   const d = new URLSearchParams(new FormData(this));
   d.append("mode","build");
   fetch(GAS_URL, {method:"POST", body: d})
     .then(() => {
-      toggleLoading(false); // 表示終了
+      toggleLoading(false);
       alert("申請完了だすぃ！");
       this.reset();
     })
@@ -219,15 +221,15 @@ document.getElementById("buildForm").onsubmit = function(e) {
 // 2. レンタル開始
 document.getElementById("rentForm").onsubmit = function(e) { 
   e.preventDefault(); 
-  toggleLoading(true); // 表示開始
+  toggleLoading(true);
   const d = new URLSearchParams(new FormData(this)); 
   d.append("mode","rent"); 
   fetch(GAS_URL, {method:"POST", body:d})
-    .then(r=>r.text())
-    .then(t => {
-      toggleLoading(false); // 表示終了
-      if(t.includes("Error")) {
-        alert("2台までですだすぃ！");
+    .then(r=>r.json())
+    .then(res => {
+      toggleLoading(false);
+      if(res.status === "error") {
+        alert(res.message + "だすぃ！");
       } else {
         alert("レンタル開始！安全運転でね！");
         location.reload();
@@ -242,14 +244,14 @@ document.getElementById("rentForm").onsubmit = function(e) {
 // 3. 返却確定
 document.getElementById("returnForm").onsubmit = function(e) { 
   e.preventDefault(); 
-  toggleLoading(true); // 表示開始
+  toggleLoading(true);
   const d = new URLSearchParams(); 
   d.append("mode","return"); 
   d.append("mcid", document.getElementById("returnMcid").value); 
   d.append("number", document.getElementById("returnCarSelect").value); 
   fetch(GAS_URL, {method:"POST", body:d})
     .then(() => {
-      toggleLoading(false); // 表示終了
+      toggleLoading(false);
       alert("返却完了！お疲れさまだすぃ！");
       location.reload();
     })
@@ -262,15 +264,15 @@ document.getElementById("returnForm").onsubmit = function(e) {
 // 4. 管理報告
 document.getElementById("manageForm").onsubmit = function(e) {
   e.preventDefault();
-  toggleLoading(true); // 表示開始
+  toggleLoading(true);
   const d = new URLSearchParams(new FormData(this));
   d.append("mode", "manage");
   fetch(GAS_URL, {method: "POST", body: d})
     .then(() => {
-      toggleLoading(false); // 表示終了
-      alert("報告を送信しました。ありがとうだすぃ！");
+      toggleLoading(false);
+      alert("報告を送信しました。");
       this.reset();
-      if(typeof toggleManageFields === "function") toggleManageFields();
+      toggleManageFields();
     })
     .catch(() => {
       toggleLoading(false);
@@ -278,6 +280,7 @@ document.getElementById("manageForm").onsubmit = function(e) {
     });
 };
 
+// エンターキーで送信
 document.getElementById("userInput").onkeypress = (e) => { if(e.key==="Enter") handleSend(); };
 
 // 初期化実行
