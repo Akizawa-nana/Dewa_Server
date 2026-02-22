@@ -199,13 +199,66 @@ function toggleChat() {
   if(win.style.display === 'flex') scrollToBottom();
 }
 
-function showFaqMenu() {
-  const area = document.getElementById("faq-area"); area.innerHTML = "";
+// FAQメニューを表示する関数（場所を特定して描画するように修正）
+function showFaqMenu(targetContainer = null) {
+  // ターゲットが指定されていない場合は、デフォルトのfaq-areaを使う
+  const area = targetContainer || document.getElementById("faq-area");
+  area.innerHTML = ""; // 一旦クリア
+  
   currentFaqData.forEach(f => {
-    const b = document.createElement("button"); b.className = "faq-btn"; b.textContent = "📋 " + f.question;
-    b.onclick = () => askChat(f.question); area.appendChild(b);
+    const b = document.createElement("button");
+    b.className = "faq-btn";
+    b.textContent = "📋 " + f.question;
+    b.onclick = () => askChat(f.question);
+    area.appendChild(b);
   });
   scrollToBottom();
+}
+
+// 質問を投げた時の挙動
+function askChat(q) {
+  const content = document.getElementById('chat-content');
+  const mainFaqArea = document.getElementById("faq-area");
+  
+  // 1. メインの質問エリアを隠す
+  mainFaqArea.innerHTML = "";
+
+  // 2. ユーザーの質問を表示
+  content.innerHTML += `
+    <div style="width:100%; display:flex; margin-bottom:10px;">
+      <div class="msg msg-user">${q}</div>
+    </div>`;
+
+  const faq = currentFaqData.find(f => f.question === q);
+
+  // 3. ボットの回答
+  setTimeout(() => {
+    // 新しいメッセージの塊（回答 + 次のボタン用エリア）を作成
+    const responseId = "res-" + Date.now();
+    content.innerHTML += `
+      <div class="msg-container" style="display:flex; align-items:center;">
+        <img src="${SUI_IMG}" class="bot-icon">
+        <div class="msg msg-bot">${faq ? faq.answer : 'すみません、わかりませんでした。'}</div>
+      </div>
+      <div id="${responseId}" style="margin-left:53px; margin-bottom:20px;"></div>
+    `;
+
+    // 4. 「他の質問をする」ボタンを作成
+    const nextArea = document.getElementById(responseId);
+    const backBtn = document.createElement("button");
+    backBtn.className = "back-btn";
+    backBtn.style.margin = "0"; // 位置調整
+    backBtn.textContent = "← 他の質問をする";
+    
+    // ボタンを押したら、その回答のすぐ下にメニューを再表示する
+    backBtn.onclick = () => {
+      backBtn.style.display = "none"; // 「戻る」ボタン自体は消す
+      showFaqMenu(nextArea); // その場所にメニューを出す
+    };
+    
+    nextArea.appendChild(backBtn);
+    scrollToBottom();
+  }, 600);
 }
 
 function askChat(q) {
