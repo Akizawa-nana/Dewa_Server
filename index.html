@@ -111,10 +111,20 @@
     }
 
     function toggleChat() {
-      const win = document.getElementById('chat-window');
-      win.style.display = (win.style.display === 'none' || win.style.display === '') ? 'flex' : 'none';
-      if(win.style.display === 'flex') scrollToBottom();
-    }
+  const win = document.getElementById('chat-window');
+  const bubble = document.getElementById('chat-bubble'); // 追加
+  
+  const isOpen = (win.style.display === 'none' || win.style.display === '');
+  win.style.display = isOpen ? 'flex' : 'none';
+  
+  // 開いているときは 'chat-open' クラスを追加、閉じているときは削除
+  if (isOpen) {
+    bubble.classList.add('chat-open');
+    scrollToBottom();
+  } else {
+    bubble.classList.remove('chat-open');
+  }
+}
 
     function showFaqMenu(targetContainer = null) {
       const area = targetContainer || document.getElementById("faq-area");
