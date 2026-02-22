@@ -1,38 +1,31 @@
-const GAS_URL = "https://script.google.com/macros/s/AKfycbzS7r_AGhZpmqgVCWMtQG40zWvlGzEo5pD6KmzJy0Wt6Oqe2nCdj0-_AsLXTuQ9LjGZ/exec";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbwsq8vd69zZf5FsTUxfa26PS7mB3n8jJEuRJ_Xck68XRZvExMIW3gRxxCDU7KLiyHKH/exec";
 const SUI_IMG = "https://i0.wp.com/kizakurasui.jp/wp-content/uploads/2019/03/-e1552528466283.png";
 let currentRentData = [];
 let currentFaqData = [];
 
 // データの初期読み込み
 function loadData() {
-  // GETリクエストは比較的CORSエラーが起きにくい
-  fetch(GAS_URL + "?mode=carlist")
-    .then(res => res.json())
-    .then(list => {
-      currentRentData = list;
-      const s1 = document.getElementById("carSelect");
-      const s2 = document.getElementById("returnCarSelect");
-      const tb = document.getElementById("statusTable");
-      
-      if (!s1 || !s2 || !tb) return;
-      
-      s1.innerHTML = ""; s2.innerHTML = ""; tb.innerHTML = "";
-      list.forEach(item => {
-        if (item.status === "貸出中") {
-          s2.innerHTML += `<option value="${item.number}">${item.number} (${item.car})</option>`;
-        } else {
-          s1.innerHTML += `<option value="${item.number}">${item.number} (${item.car}) - ${item.price}円</option>`;
-        }
-        tb.innerHTML += `<tr><td>${item.number}</td><td>${item.car}</td><td><span class="status-badge ${item.status === '貸出中' ? 'status-busy' : 'status-vacant'}">${item.status}</span></td></tr>`;
-      });
-    }).catch(err => console.error("車両リストの取得に失敗しました:", err));
+  fetch(GAS_URL + "?mode=carlist").then(res => res.json()).then(list => {
+    currentRentData = list;
+    const s1 = document.getElementById("carSelect"); 
+    const s2 = document.getElementById("returnCarSelect"); 
+    const tb = document.getElementById("statusTable");
+    if(!s1 || !s2 || !tb) return;
+    s1.innerHTML = ""; s2.innerHTML = ""; tb.innerHTML = "";
+    list.forEach(item => {
+      if(item.status === "貸出中") {
+        s2.innerHTML += `<option value="${item.number}">${item.number} (${item.car})</option>`;
+      } else {
+        s1.innerHTML += `<option value="${item.number}">${item.number} (${item.car}) - ${item.price}円</option>`;
+      }
+      tb.innerHTML += `<tr><td>${item.number}</td><td>${item.car}</td><td><span class="status-badge ${item.status==='貸出中'?'status-busy':'status-vacant'}">${item.status}</span></td></tr>`;
+    });
+  });
 
-  fetch(GAS_URL + "?mode=faqlist")
-    .then(res => res.json())
-    .then(faqs => {
-      currentFaqData = faqs;
-      showFaqMenu();
-    }).catch(err => console.error("FAQの取得に失敗しました:", err));
+  fetch(GAS_URL + "?mode=faqlist").then(res => res.json()).then(faqs => { 
+    currentFaqData = faqs; 
+    showFaqMenu(); 
+  });
 }
 
 // チャット開閉
@@ -41,7 +34,7 @@ function toggleChat() {
   const bubble = document.getElementById('chat-bubble');
   const isOpening = (win.style.display === 'none' || win.style.display === '');
   win.style.display = isOpening ? 'flex' : 'none';
-  if (isOpening) {
+  if(isOpening) {
     bubble.classList.add('chat-open');
     scrollToBottom();
   } else {
@@ -49,15 +42,14 @@ function toggleChat() {
   }
 }
 
-// FAQメニュー描画
+// FAQメニュー（分類一覧）の描画
 function showFaqMenu(targetContainer = null) {
   const area = targetContainer || document.getElementById("faq-area");
-  if (!area) return;
   area.innerHTML = "";
   const categories = [...new Set(currentFaqData.map(f => f.category || "その他"))];
   categories.forEach(cat => {
     const b = document.createElement("button");
-    b.className = "faq-btn category-btn";
+    b.className = "faq-btn category-btn"; // CSSで装飾
     b.textContent = "📁 " + cat;
     b.onclick = () => showQuestionsByCategory(cat, targetContainer);
     area.appendChild(b);
@@ -65,6 +57,7 @@ function showFaqMenu(targetContainer = null) {
   scrollToBottom();
 }
 
+// 特定の分類に属する質問一覧を表示
 function showQuestionsByCategory(cat, targetContainer) {
   const area = targetContainer || document.getElementById("faq-area");
   area.innerHTML = `<div style="padding:5px; font-size:0.85em; color:#888; border-left:3px solid var(--sui-pink); margin-bottom:8px;">カテゴリ: ${cat}</div>`;
@@ -87,7 +80,7 @@ function showQuestionsByCategory(cat, targetContainer) {
 function askChat(q) {
   const content = document.getElementById('chat-content');
   const mainFaqArea = document.getElementById("faq-area");
-  if (mainFaqArea) mainFaqArea.innerHTML = "";
+  mainFaqArea.innerHTML = "";
   content.innerHTML += `<div style="width:100%; display:flex; margin-bottom:10px;"><div class="msg msg-user">${q}</div></div>`;
   const faq = currentFaqData.find(f => f.question === q);
   setTimeout(() => {
@@ -105,9 +98,9 @@ function askChat(q) {
 }
 
 function handleSend() {
-  const input = document.getElementById("userInput");
-  const text = input.value.trim();
-  if (!text) return;
+  const input = document.getElementById("userInput"); 
+  const text = input.value.trim(); 
+  if(!text) return;
   const content = document.getElementById('chat-content');
   content.innerHTML += `<div style="width:100%; display:flex; margin-bottom:10px;"><div class="msg msg-user">${text}</div></div>`;
   input.value = "";
@@ -130,27 +123,47 @@ function addBackButton(targetId) {
   const backBtn = document.createElement("button");
   backBtn.className = "back-btn";
   backBtn.textContent = "← 他の質問をする";
-  backBtn.onclick = () => { backBtn.remove(); showFaqMenu(nextArea); };
+  backBtn.onclick = () => { 
+    backBtn.remove(); 
+    showFaqMenu(nextArea); 
+  };
   nextArea.appendChild(backBtn);
 }
 
-function scrollToBottom() { const c = document.getElementById('chat-content'); if(c) c.scrollTop = c.scrollHeight; }
+function scrollToBottom() { const c = document.getElementById('chat-content'); c.scrollTop = c.scrollHeight; }
 
 // タブ切り替え
 document.querySelectorAll(".tab").forEach(tab => {
   tab.addEventListener("click", () => {
     document.querySelectorAll(".tab, .tab-content").forEach(el => el.classList.remove("active"));
-    tab.classList.add("active");
-    const target = document.getElementById(tab.dataset.tab);
-    if(target) target.classList.add("active");
+    tab.classList.add("active"); 
+    document.getElementById(tab.dataset.tab).classList.add("active");
   });
 });
 
+// 管理・報告フォームの入力切り替え
+function toggleManageFields() {
+  const type = document.getElementById("reportType").value;
+  const buildFields = document.getElementById("buildFields");
+  const carFields = document.getElementById("carFields");
+  if (type === "accident") {
+    buildFields.style.display = "none";
+    carFields.style.display = "block";
+  } else {
+    buildFields.style.display = "block";
+    carFields.style.display = "none";
+  }
+}
+
 // テーマ切り替え
 function toggleTheme() {
-  document.body.classList.toggle('theme-clean');
+  document.body.classList.toggle('theme-clean'); 
   document.body.classList.toggle('theme-akita');
-  updateThemeUI();
+  const isAkita = document.body.classList.contains('theme-akita');
+  document.querySelectorAll('.theme-only-akita').forEach(e => e.style.display = isAkita ? 'block' : 'none');
+  document.querySelectorAll('.theme-only-clean').forEach(e => e.style.display = isAkita ? 'none' : 'block');
+  const theme = isAkita ? 'theme-akita' : 'theme-clean';
+  localStorage.setItem('selectedTheme', theme);
 }
 
 function loadTheme() {
@@ -159,90 +172,55 @@ function loadTheme() {
     document.body.classList.remove('theme-clean');
     document.body.classList.add('theme-akita');
   }
-  updateThemeUI();
-}
-
-function updateThemeUI() {
   const isAkita = document.body.classList.contains('theme-akita');
   document.querySelectorAll('.theme-only-akita').forEach(e => e.style.display = isAkita ? 'block' : 'none');
   document.querySelectorAll('.theme-only-clean').forEach(e => e.style.display = isAkita ? 'none' : 'block');
-  localStorage.setItem('selectedTheme', isAkita ? 'theme-akita' : 'theme-clean');
 }
 
 // 料金計算
 function calculateFee() {
-  const m = document.getElementById("returnMcid").value.trim();
+  const m = document.getElementById("returnMcid").value; 
   const n = document.getElementById("returnCarSelect").value;
   const t = currentRentData.find(i => i.number == n);
-  if (t && t.mcid === m) {
-    const lastDate = new Date(t.lastDate);
-    const days = Math.max(1, Math.ceil(Math.abs(new Date() - lastDate) / (1000 * 60 * 60 * 24)));
+  if(t && t.mcid === m) {
+    const days = Math.max(1, Math.ceil(Math.abs(new Date() - new Date(t.lastDate))/(1000*60*60*24)));
     document.getElementById("feeDetail").innerHTML = `車種: ${t.car}<br>期間: ${days}日間`;
     document.getElementById("feeTotal").innerText = `合計: ${days * t.price}円`;
     document.getElementById("calcResult").style.display = "block";
-  } else {
-    alert("MCIDが一致しません。");
-  }
+  } else { alert("MCIDが一致しません。"); }
 }
 
-// --- フォーム送信共通処理 (CORS対策版) ---
-async function handleFormSubmit(form, mode) {
-  const submitBtn = form.querySelector('button[type="submit"]');
-  const originalText = submitBtn.innerText;
-  
-  try {
-    submitBtn.disabled = true;
-    submitBtn.innerText = "送信中...";
+// フォーム送信処理
+document.getElementById("buildForm").onsubmit = function(e) { 
+  e.preventDefault(); 
+  fetch(GAS_URL, {method:"POST", body:new URLSearchParams(new FormData(this)).append("mode","build")}).then(() => alert("申請完了")); 
+};
+document.getElementById("rentForm").onsubmit = function(e) { 
+  e.preventDefault(); 
+  const d = new URLSearchParams(new FormData(this)); 
+  d.append("mode","rent"); 
+  fetch(GAS_URL, {method:"POST", body:d}).then(r=>r.text()).then(t => t.includes("Error")?alert("2台までです"):alert("レンタル開始")); 
+};
+document.getElementById("returnForm").onsubmit = function(e) { 
+  e.preventDefault(); 
+  const d = new URLSearchParams(); 
+  d.append("mode","return"); 
+  d.append("mcid", document.getElementById("returnMcid").value); 
+  d.append("number", document.getElementById("returnCarSelect").value); 
+  fetch(GAS_URL, {method:"POST", body:d}).then(() => location.reload()); 
+};
+document.getElementById("manageForm").onsubmit = function(e) {
+  e.preventDefault();
+  const d = new URLSearchParams(new FormData(this));
+  d.append("mode", "manage");
+  fetch(GAS_URL, {method: "POST", body: d}).then(() => {
+    alert("報告を送信しました。");
+    this.reset();
+    toggleManageFields();
+  });
+};
 
-    // FormDataからパラメータを作成
-    const params = new URLSearchParams(new FormData(form));
-    params.append("mode", mode);
-
-    // GASへのPOSTリクエスト
-    const response = await fetch(GAS_URL, {
-      method: "POST",
-      mode: "cors", // これによりブラウザにCORS通信であることを明示
-      body: params,
-      headers: {
-        "Accept": "application/json"
-      }
-    });
-
-    // レスポンスをJSONとして解析
-    const result = await response.json();
-
-    if (result.status === "error") {
-      alert("エラーが発生しました: " + result.message);
-    } else {
-      alert("処理が完了しました！");
-      // 成功時はデータを最新にするためリロード
-      setTimeout(() => location.reload(), 500);
-      form.reset();
-    }
-  } catch (err) {
-    console.error("Fetch error:", err);
-    alert("通信エラーが発生しました。GASのデプロイ設定が「全員」になっているか確認してください。");
-  } finally {
-    submitBtn.disabled = false;
-    submitBtn.innerText = originalText;
-  }
-}
-
-// 各イベントリスナー
-document.getElementById("buildForm").onsubmit = function(e) { e.preventDefault(); handleFormSubmit(this, "build"); };
-document.getElementById("rentForm").onsubmit = function(e) { e.preventDefault(); handleFormSubmit(this, "rent"); };
-document.getElementById("returnForm").onsubmit = function(e) { e.preventDefault(); handleFormSubmit(this, "return"); };
-
-// 管理フォーム（HTMLに存在する場合のみ実行）
-const manageForm = document.getElementById("manageForm");
-if (manageForm) {
-  manageForm.onsubmit = function(e) { e.preventDefault(); handleFormSubmit(this, "manage"); };
-}
-
-const userInput = document.getElementById("userInput");
-if(userInput) {
-  userInput.onkeypress = (e) => { if (e.key === "Enter") handleSend(); };
-}
+document.getElementById("userInput").onkeypress = (e) => { if(e.key==="Enter") handleSend(); };
 
 // 初期化実行
 loadTheme();
