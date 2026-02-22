@@ -73,16 +73,24 @@ body.theme-akita {
 .theme-akita .tab.active { background: var(--akita-gold); color: var(--akita-cedar); }
 .theme-akita input, .theme-akita select { background: #0d1117; border-color: #30363d; color: white; }
 
-/* --- 雪の結晶のスタイル（ライトモード限定） --- */
+/* --- 雪の結晶のスタイル（位置をさらに右へ調整） --- */
 .theme-clean .snow-icon::after {
-  content: "❄"; /* 雪の結晶の文字 */
+  content: "❄"; 
   position: absolute;
-  top: 10px;    /* 上からの位置調整 */
-  right: 15px;  /* 右からの位置調整 */
-  color: #d4af37; /* 画像に近いゴールド系の色 */
-  font-size: 1.2em;
-  opacity: 0.8;
-  pointer-events: none; /* クリックを邪魔しない */
+  top: 0px;       /* 少し上にあげました */
+  right: -30px;   /* 数値をマイナスにすることで、タイトルの外側（右）へはみ出させます */
+  color: #d4af37; 
+  font-size: 1.4em; /* 少し大きくして存在感を出しました */
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+/* タイトルエリアの右側に余白を確保（結晶が枠に被りすぎるのを防ぐ） */
+.header-title {
+  position: relative;
+  display: inline-block; /* タイトルの幅を文字に合わせることで位置を安定させます */
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 /* タイトルを基準位置にするための設定 */
