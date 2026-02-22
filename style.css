@@ -169,7 +169,7 @@ th, td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(128,128,
 
 /* すいちゃんボタン：サイズを大きくし、ホバーアニメーションを強化 */
 #chat-bubble { 
-  width: 130px; /* 大幅に拡大 */
+  width: 110px; /* 大幅に拡大 */
   height: auto; 
   cursor: pointer; 
   transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
@@ -180,7 +180,7 @@ th, td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(128,128,
 
 /* チャットが開いている時のすいちゃん（小さくする） */
 #chat-bubble.chat-open {
-  width: 70px;      /* 開いている時は70pxまで縮小 */
+  width: 65px;      /* 開いている時は70pxまで縮小 */
   bottom: 560px;    /* チャットウィンドウ(550px)の上に配置されるよう調整 */
   right: 10px;      /* 少し端に寄せる */
   opacity: 0.8;     /* 少し透かして控えめに */
@@ -191,7 +191,7 @@ th, td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(128,128,
   position: fixed;   /* 位置を固定 */
   bottom: 20px;
   right: 20px;
-  width: 130px;      /* 通常時は大きいまま */
+  width: 110px;      /* 通常時は大きいまま */
   transition: all 0.3s ease-in-out; /* 変化をスムーズに */
   z-index: 10002;    /* ウィンドウより前面に出す */
 }
