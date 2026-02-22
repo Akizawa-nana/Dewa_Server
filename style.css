@@ -178,6 +178,24 @@ th, td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(128,128,
 #chat-bubble:hover { transform: scale(1.15) rotate(-8deg); }
 #chat-bubble img { width: 100%; height: auto; display: block; }
 
+/* チャットが開いている時のすいちゃん（小さくする） */
+#chat-bubble.chat-open {
+  width: 70px;      /* 開いている時は70pxまで縮小 */
+  bottom: 560px;    /* チャットウィンドウ(550px)の上に配置されるよう調整 */
+  right: 10px;      /* 少し端に寄せる */
+  opacity: 0.8;     /* 少し透かして控えめに */
+}
+
+/* 通常時（閉じている時）のスタイルを補足 */
+#chat-bubble {
+  position: fixed;   /* 位置を固定 */
+  bottom: 20px;
+  right: 20px;
+  width: 130px;      /* 通常時は大きいまま */
+  transition: all 0.3s ease-in-out; /* 変化をスムーズに */
+  z-index: 10002;    /* ウィンドウより前面に出す */
+}
+
 #chat-window { 
   display: none; width: 350px; height: 550px; background: white; 
   border-radius: 15px; box-shadow: 0 5px 25px rgba(0,0,0,0.2); 
