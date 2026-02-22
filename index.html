@@ -11,12 +11,10 @@
   <style>
     /* 送信中オーバーレイのスタイル */
     #loading-overlay {
-      display: none; /* 初期状態は非表示 */
+      display: none; 
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
       background: rgba(255, 255, 255, 0.9);
       z-index: 10000;
       flex-direction: column;
@@ -26,8 +24,7 @@
     }
 
     .loading-img {
-      width: 150px;
-      height: auto;
+      width: 150px; height: auto;
       animation: sui-bounce 1.5s infinite ease-in-out;
     }
 
@@ -35,13 +32,46 @@
       margin-top: 20px;
       font-size: 1.2em;
       font-weight: bold;
-      color: #e91e63; /* すいちゃんカラー（ピンク） */
+      color: #e91e63;
       text-align: center;
     }
 
     @keyframes sui-bounce {
       0%, 100% { transform: translateY(0) scale(1); }
       50% { transform: translateY(-20px) scale(1.05); }
+    }
+
+    /* 追加：報告フォーム用スタイル */
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+      font-size: 0.9em;
+    }
+    .theme-akita label { color: var(--akita-gold); }
+    
+    textarea {
+      width: 100%;
+      padding: 12px;
+      margin-top: 5px;
+      box-sizing: border-box;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-family: inherit;
+      resize: vertical;
+    }
+    .theme-akita textarea {
+      background: #0d1117;
+      border-color: #30363d;
+      color: white;
+    }
+    
+    .field-group {
+      animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-5px); }
+      to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
@@ -67,27 +97,23 @@
       <div class="tab" data-tab="rentcar">車両レンタル</div>
       <div class="tab" data-tab="returncar">返却・精算</div>
       <div class="tab" data-tab="status">貸出状況</div>
-    </div>
+      <div class="tab" data-tab="manage">管理・報告</div> </div>
 
-   <div id="build" class="tab-content active">
+    <div id="build" class="tab-content active">
       <h2>建築申請書</h2>
       <form id="buildForm">
         <label>MCID</label>
         <input type="text" name="mcid" placeholder="例: Akita_Taro" required>
-        
         <label>建築種別</label>
         <select name="type">
           <option>建物</option>
           <option>道路</option>
           <option>その他</option>
         </select>
-        
         <label>用途</label>
         <input type="text" name="purpose" placeholder="例: きりたんぽ屋" required>
-        
         <label>中心座標</label>
-        <input type="text" name="coords" placeholder="例: 0,0,0" required>
-        
+        <input type="text" name="coords" placeholder="例: 100, 64, -200" required>
         <button type="submit" class="main-submit">申請を提出する</button>
       </form>
     </div>
@@ -117,6 +143,36 @@
     <div id="status" class="tab-content">
       <h2>現在貸出状況</h2>
       <table><thead><tr><th>番号</th><th>車種</th><th>状態</th></tr></thead><tbody id="statusTable"></tbody></table>
+    </div>
+
+    <div id="manage" class="tab-content">
+      <h2>管理・報告フォーム</h2>
+      <form id="manageForm">
+        <label>MCID</label>
+        <input type="text" name="mcid" placeholder="あなたのMCID" required>
+
+        <label>報告種別</label>
+        <select name="reportType" id="reportType" onchange="toggleManageFields()">
+          <option value="build_info">建築・土地関連の報告</option>
+          <option value="accident">事故・車両破損の報告</option>
+          <option value="other">その他お問い合わせ</option>
+        </select>
+
+        <div id="buildFields" class="field-group">
+          <label>対象の座標</label>
+          <input type="text" name="targetCoords" placeholder="例: 100, 64, -200">
+        </div>
+
+        <div id="carFields" class="field-group" style="display:none;">
+          <label>車両ナンバー</label>
+          <input type="text" name="carNumber" placeholder="例: A-01">
+        </div>
+
+        <label>詳細内容</label>
+        <textarea name="detail" rows="4" placeholder="詳しい状況を教えてくださいだすぃ！" required></textarea>
+
+        <button type="submit" class="main-submit">報告を送信する</button>
+      </form>
     </div>
   </div>
 
@@ -148,12 +204,17 @@
     let currentRentData = [];
     let currentFaqData = [];
 
-    // ローディング表示切り替え関数
     function toggleLoading(show) {
       document.getElementById("loading-overlay").style.display = show ? "flex" : "none";
     }
 
-    // データの初期読み込み
+    // 報告フォームの入力項目切り替え
+    function toggleManageFields() {
+      const type = document.getElementById("reportType").value;
+      document.getElementById("buildFields").style.display = (type === "build_info" || type === "other") ? "block" : "none";
+      document.getElementById("carFields").style.display = (type === "accident") ? "block" : "none";
+    }
+
     function loadData() {
       fetch(GAS_URL + "?mode=carlist").then(res => res.json()).then(list => {
         currentRentData = list;
@@ -165,27 +226,17 @@
           tb.innerHTML += `<tr><td>${item.number}</td><td>${item.car}</td><td><span class="status-badge ${item.status==='貸出中'?'status-busy':'status-vacant'}">${item.status}</span></td></tr>`;
         });
       });
-      fetch(GAS_URL + "?mode=faqlist").then(res => res.json()).then(faqs => { 
-        currentFaqData = faqs; 
-        showFaqMenu(); 
-      });
+      fetch(GAS_URL + "?mode=faqlist").then(res => res.json()).then(faqs => { currentFaqData = faqs; showFaqMenu(); });
     }
 
-    // チャット開閉
     function toggleChat() {
       const win = document.getElementById('chat-window');
       const bubble = document.getElementById('chat-bubble');
       const isOpen = (win.style.display === 'none' || win.style.display === '');
       win.style.display = isOpen ? 'flex' : 'none';
-      if (isOpen) {
-        bubble.classList.add('chat-open');
-        scrollToBottom();
-      } else {
-        bubble.classList.remove('chat-open');
-      }
+      if (isOpen) { bubble.classList.add('chat-open'); scrollToBottom(); } else { bubble.classList.remove('chat-open'); }
     }
 
-    // FAQメニューを表示
     function showFaqMenu(targetContainer = null) {
       const area = targetContainer || document.getElementById("faq-area");
       area.innerHTML = "";
@@ -200,31 +251,25 @@
       scrollToBottom();
     }
 
-    // カテゴリー内の質問を表示
     function showQuestionsByCategory(cat, targetContainer) {
       const area = targetContainer || document.getElementById("faq-area");
       area.innerHTML = `<div style="padding:5px; font-size:0.8em; color:#888; border-left:3px solid var(--sui-pink); margin-bottom:5px;">${cat}</div>`;
-      const filtered = currentFaqData.filter(f => (f.category || "その他") === cat);
-      filtered.forEach(f => {
+      currentFaqData.filter(f => (f.category || "その他") === cat).forEach(f => {
         const b = document.createElement("button");
-        b.className = "faq-btn";
-        b.textContent = "📋 " + f.question;
+        b.className = "faq-btn"; b.textContent = "📋 " + f.question;
         b.onclick = () => askChat(f.question);
         area.appendChild(b);
       });
       const back = document.createElement("button");
-      back.className = "back-btn";
-      back.textContent = "← 分類一覧へ";
+      back.className = "back-btn"; back.textContent = "← 分類一覧へ";
       back.onclick = () => showFaqMenu(targetContainer);
       area.appendChild(back);
       scrollToBottom();
     }
 
-    // 質問への回答
     function askChat(q) {
       const content = document.getElementById('chat-content');
-      const mainFaqArea = document.getElementById("faq-area");
-      mainFaqArea.innerHTML = "";
+      document.getElementById("faq-area").innerHTML = "";
       content.innerHTML += `<div style="width:100%; display:flex; margin-bottom:10px;"><div class="msg msg-user">${q}</div></div>`;
       const faq = currentFaqData.find(f => f.question === q);
       setTimeout(() => {
@@ -241,7 +286,6 @@
       }, 600);
     }
 
-    // 自由入力送信
     function handleSend() {
       const input = document.getElementById("userInput");
       const text = input.value.trim();
@@ -266,15 +310,13 @@
     function addBackButton(targetId) {
       const nextArea = document.getElementById(targetId);
       const backBtn = document.createElement("button");
-      backBtn.className = "back-btn";
-      backBtn.textContent = "← 他の質問をする";
+      backBtn.className = "back-btn"; backBtn.textContent = "← 他の質問をする";
       backBtn.onclick = () => { backBtn.remove(); showFaqMenu(nextArea); };
       nextArea.appendChild(backBtn);
     }
 
     function scrollToBottom() { const c = document.getElementById('chat-content'); c.scrollTop = c.scrollHeight; }
 
-    // タブ切り替え
     document.querySelectorAll(".tab").forEach(tab => {
       tab.addEventListener("click", () => {
         document.querySelectorAll(".tab, .tab-content").forEach(el => el.classList.remove("active"));
@@ -282,20 +324,16 @@
       });
     });
 
-    // デザイン切り替え
     function toggleTheme() {
       document.body.classList.toggle('theme-clean');
       document.body.classList.toggle('theme-akita');
-      const currentTheme = document.body.classList.contains('theme-akita') ? 'theme-akita' : 'theme-clean';
-      localStorage.setItem('selectedTheme', currentTheme);
+      localStorage.setItem('selectedTheme', document.body.classList.contains('theme-akita') ? 'theme-akita' : 'theme-clean');
       updateThemeUI();
     }
 
     function loadTheme() {
-      const savedTheme = localStorage.getItem('selectedTheme');
-      if (savedTheme === 'theme-akita') {
-        document.body.classList.remove('theme-clean');
-        document.body.classList.add('theme-akita');
+      if (localStorage.getItem('selectedTheme') === 'theme-akita') {
+        document.body.classList.remove('theme-clean'); document.body.classList.add('theme-akita');
       }
       updateThemeUI();
     }
@@ -306,7 +344,6 @@
       document.querySelectorAll('.theme-only-clean').forEach(e => e.style.display = isAkita ? 'none' : 'block');
     }
 
-    // 料金計算
     function calculateFee() {
       const m = document.getElementById("returnMcid").value; const n = document.getElementById("returnCarSelect").value;
       const t = currentRentData.find(i => i.number == n);
@@ -318,69 +355,44 @@
       } else { alert("MCIDが一致しません。"); }
     }
 
-    // --- 送信処理（ローディング追加版） ---
+    // --- 送信処理 ---
 
     // 1. 建築申請
     document.getElementById("buildForm").onsubmit = function(e) { 
-      e.preventDefault(); 
-      toggleLoading(true); // 送信中表示
-      const formData = new FormData(this);
-      const params = new URLSearchParams();
-      params.append("mode", "build");
-      formData.forEach((value, key) => { params.append(key, value); });
-
-      fetch(GAS_URL, {
-        method: "POST", 
-        body: params,
-        mode: "no-cors"
-      }).then(() => {
-        toggleLoading(false); // 表示終了
-        alert("建築申請を提出しました！");
-        this.reset();
-      }).catch(err => {
-        toggleLoading(false);
-        alert("送信エラーが発生しました");
-      });
+      e.preventDefault(); toggleLoading(true);
+      const p = new URLSearchParams(new FormData(this)); p.append("mode", "build");
+      fetch(GAS_URL, { method: "POST", body: p, mode: "no-cors" }).then(() => {
+        toggleLoading(false); alert("建築申請を提出しました！すぐに建築を始めてOKだすぃ！"); this.reset();
+      }).catch(() => { toggleLoading(false); alert("送信エラー"); });
     };
 
     // 2. レンタル開始
     document.getElementById("rentForm").onsubmit = function(e) { 
-      e.preventDefault(); 
-      toggleLoading(true);
-      const d = new URLSearchParams(new FormData(this)); 
-      d.append("mode","rent"); 
-      fetch(GAS_URL, {method:"POST", body:d})
-        .then(r=>r.text())
-        .then(t => {
-          toggleLoading(false);
-          if(t.includes("Error")) alert("2台までです");
-          else { alert("レンタル開始！安全運転でね！"); location.reload(); }
-        })
-        .catch(() => { toggleLoading(false); alert("接続エラーだすぃ"); });
+      e.preventDefault(); toggleLoading(true);
+      const p = new URLSearchParams(new FormData(this)); p.append("mode","rent"); 
+      fetch(GAS_URL, {method:"POST", body:p}).then(r=>r.text()).then(t => {
+        toggleLoading(false); if(t.includes("Error")) alert("2台までです"); else { alert("レンタル開始！"); location.reload(); }
+      }).catch(() => { toggleLoading(false); alert("接続エラー"); });
     };
 
     // 3. 返却確定
     document.getElementById("returnForm").onsubmit = function(e) { 
-      e.preventDefault(); 
-      toggleLoading(true);
-      const d = new URLSearchParams(); 
-      d.append("mode","return"); 
-      d.append("mcid", document.getElementById("returnMcid").value); 
-      d.append("number", document.getElementById("returnCarSelect").value); 
-      fetch(GAS_URL, {method:"POST", body:d})
-        .then(() => {
-          toggleLoading(false);
-          alert("返却完了しました！おつかれさまだすぃ！");
-          location.reload();
-        })
-        .catch(() => { toggleLoading(false); alert("エラーだすぃ"); });
+      e.preventDefault(); toggleLoading(true);
+      const p = new URLSearchParams(); p.append("mode","return"); p.append("mcid", document.getElementById("returnMcid").value); p.append("number", document.getElementById("returnCarSelect").value); 
+      fetch(GAS_URL, {method:"POST", body:p}).then(() => { toggleLoading(false); alert("返却完了！"); location.reload(); }).catch(() => { toggleLoading(false); alert("エラー"); });
+    };
+
+    // 追加：4. 管理報告送信
+    document.getElementById("manageForm").onsubmit = function(e) {
+      e.preventDefault(); toggleLoading(true);
+      const p = new URLSearchParams(new FormData(this)); p.append("mode", "manage");
+      fetch(GAS_URL, { method: "POST", body: p, mode: "no-cors" }).then(() => {
+        toggleLoading(false); alert("報告を受け付けました。運営が確認するだすぃ！"); this.reset(); toggleManageFields();
+      }).catch(() => { toggleLoading(false); alert("送信エラー"); });
     };
 
     document.getElementById("userInput").onkeypress = (e) => { if(e.key==="Enter") handleSend(); };
-
-    // 初期実行
-    loadTheme();
-    loadData();
+    loadTheme(); loadData();
   </script>
 </body>
 </html>
