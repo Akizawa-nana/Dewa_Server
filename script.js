@@ -327,9 +327,25 @@ function showKyubeySurprise() {
     // ランダムに1つ選ぶ
     const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
 
-    console.log("%c／人 ◕ ‿‿ ◕ 人 ＼", "color: #e91e63; font-size: 40px; font-weight: bold;");
-    console.log(`%c${randomQuote}`, "color: #333; font-size: 16px; background: #fff1f0; padding: 8px; border-left: 5px solid #ff80ab;");
-}
+    const pinkEye = "color: #ff0000; font-size: 40px; font-weight: bold;";
+    const blackBody = "color: #000000; font-size: 40px; font-weight: bold;";
+
+    // 顔文字の表示（パーツごとにスタイルを適用）
+    console.log(
+        "%c／人 %c◕%c ‿‿ %c◕%c 人 ＼", 
+        blackBody, // ／人 
+        pinkEye,   // ◕ (左目)
+        blackBody, //  ‿‿ 
+        pinkEye,   // ◕ (右目)
+        blackBody  //  人 ＼
+    );
+
+    // 引用部分
+    console.log(
+        `%c${randomQuote}`, 
+        "color: #333; font-size: 16px; background: #fff1f0; padding: 8px; border-left: 5px solid #ff80ab;"
+    );
+} // ← ここでしっかり関数を閉じています
 
 // --- 初期化実行 ---
 window.onload = () => {
