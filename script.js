@@ -400,7 +400,7 @@ window.onload = () => {
     showKyubeySurprise();
 
     // 3%の確率で見滝原市ポータルへ
-    if (Math.random() < 1) {
+    if (Math.random() < 0) {
         rewriteToMitakihara();
     }
 
