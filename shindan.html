@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>魔法少女適性診断 ／人◕ ‿‿ ◕人＼</title>
+    <style>
+        :root {
+            --qb-white: #ffffff;
+            --qb-gray: #f8f9fa;
+            --qb-pink: #ff8eb5;
+            --qb-red: #e60012;
+            --qb-text: #444444;
+            --gem-color: var(--qb-pink);
+        }
+
+        body {
+            font-family: 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif;
+            background-color: var(--qb-gray);
+            color: var(--qb-text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        /* 進捗プログレスバー */
+        .progress-container { position: fixed; top: 0; left: 0; width: 100%; height: 6px; background-color: #eee; z-index: 100; }
+        #progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--qb-pink), var(--qb-red)); transition: width 0.3s ease; }
+
+        .container {
+            background: var(--qb-white);
+            padding: 2.5rem;
+            border-radius: 25px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            border: 1.5px solid rgba(255, 142, 181, 0.2);
+            transition: all 0.8s ease;
+        }
+
+        /* ソウルジェムの輝き（オーラ）演出 */
+        .aura-active { box-shadow: 0 0 40px 10px var(--gem-color); border-color: var(--gem-color); }
+
+        h1 { color: var(--qb-red); font-size: 1.5rem; margin-bottom: 1rem; }
+        .button-group { display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 25px; }
+
+        .btn {
+            display: inline-block;
+            min-width: 240px;
+            padding: 14px 24px;
+            background-color: var(--qb-white);
+            color: var(--qb-pink);
+            border: 2px solid var(--qb-pink);
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+            outline: none;
+        }
+
+        .btn:hover { background-color: var(--qb-pink); color: var(--qb-white); transform: translateY(-2px); }
+        .btn:active { transform: translateY(1px) scale(0.95); }
+        .btn-secondary { border-color: #d1d1d1; color: #888; min-width: 180px; }
+
+        .question { font-size: 1.2rem; margin: 30px 0; font-weight: bold; line-height: 1.6; min-height: 4.5rem; display: flex; align-items: center; justify-content: center; }
+        
+        /* 結果表示：視認性を確保 */
+        #result { 
+            font-size: 2rem; 
+            margin: 20px 0; 
+            font-weight: bold; 
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        #result-desc { background: rgba(255, 255, 255, 0.8); padding: 20px; border-radius: 15px; border: 1px dashed var(--gem-color); margin-bottom: 25px; text-align: left; }
+        .hidden { display: none !important; }
+
+        /* エフェクト */
+        .ripple { position: absolute; border-radius: 50%; background: rgba(255, 255, 255, 0.6); transform: scale(0); animation: ripple-animation 0.5s linear; pointer-events: none; }
+        @keyframes ripple-animation { to { transform: scale(4); opacity: 0; } }
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+<div class="progress-container"><div id="progress-bar"></div></div>
+
+<div class="container fade-in" id="main-container">
+    <div id="menu">
+        <h1>魔法少女適性診断</h1>
+        <p>「君が支払う対価を、僕が量ってあげよう」</p>
+        <div class="button-group">
+            <button class="btn ripple-btn" onclick="startQuiz(15)">しっかり診断 (15問)</button>
+            <button class="btn ripple-btn" onclick="startQuiz(30)">本格診断 (30問)</button>
+            <a href="index.html" class="btn btn-secondary ripple-btn">出羽鯖に戻る</a>
+        </div>
+    </div>
+
+    <div id="quiz-screen" class="hidden">
+        <div id="progress-text" style="font-size: 0.8rem; color: #999;"></div>
+        <div class="question" id="question-text"></div>
+        <div class="button-group">
+            <button class="btn ripple-btn" onclick="handleAnswer(2)">とても思う</button>
+            <button class="btn ripple-btn" onclick="handleAnswer(1)">まあまあ思う</button>
+            <button class="btn ripple-btn" onclick="handleAnswer(0)">あまり思わない</button>
+            <button class="btn ripple-btn" onclick="handleAnswer(0)">全く思わない</button>
+        </div>
+    </div>
+
+    <div id="result-screen" class="hidden">
+        <p id="result-intro">君の魂が放つ光の色は……</p>
+        <div id="result"></div>
+        <div id="result-desc"></div>
+        <div class="button-group">
+            <button class="btn ripple-btn" onclick="location.reload()">もう一度診断する</button>
+            <a href="index.html" class="btn btn-secondary ripple-btn">出羽鯖に戻る</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    const characters = {
+        madoka: { name: "鹿目 まどか", color: "#ffc0cb", desc: "君はとても優しいんだね。誰かのために自分を投げ出せる、究極の素質を秘めているよ。その祈りは、いつか希望そのものになるかもしれない。" },
+        homura: { name: "暁美 ほむら", color: "#da70d6", desc: "君の意志はとても強固だ。たった一つの目的のために、運命さえ変えてしまえる。その執念は、宇宙の因果さえ捻じ曲げるよ。" },
+        sayaka: { name: "美樹 さやか", color: "#4169e1", desc: "正義感が強くて真っ直ぐだね。でも、その純粋さが自分を傷つけてしまわないよう気をつけるんだ。君の勇気は、とても脆くて美しい。" },
+        mami: { name: "巴 マミ", color: "#ffd700", desc: "周囲を導く気高さと、確かな実力を持っている。けれど、本当は誰よりも独りになることを恐れているんじゃないかな？" },
+        kyoko: { name: "佐倉 杏子", color: "#ff4500", desc: "現実主義でタフな生き方を選んでいるね。一見冷たく見えるけど、一度認めた相手にはトコトン付き合う情熱を隠し持っているはずだよ。" },
+        kyubey: { name: "キュゥべえ", color: "#ffffff", desc: "君の魂からは、何の願いも、何の絶望も感じられない。魔法少女というよりも、僕たちに近い存在なんじゃないかな？ さあ、一緒に宇宙を見守る仕事をしよう。" },
+        chaos: { name: "？？？", color: "#333333", desc: "君の回答は論理的に矛盾している。相反する願いを同時に肯定するなんて、人間の魂は本当に支離滅裂だね。そんな歪んだ因果が、どんな破滅を招くのか見ものだよ。" }
+    };
+
+    const questions = [
+        { text: "困っている人を見たら、放っておけない。", main: "madoka", sub: "sayaka", tag: "altruism" },
+        { text: "目的のためなら、自分が傷ついても構わない。", main: "homura", sub: "kyoko", tag: "sacrifice" },
+        { text: "過去にやり直したい強い後悔がある。", main: "homura", sub: "madoka", tag: "regret" },
+        { text: "正義感は人一倍強い方だと思う。", main: "sayaka", sub: "mami", tag: "justice" },
+        { text: "自分の才能は、誰かのために使うべきだ。", main: "sayaka", sub: "madoka", tag: "altruism" },
+        { text: "孤独でいるより、仲間と一緒に戦いたい。", main: "mami", sub: "sayaka", tag: "team" },
+        { text: "食べ物を粗末にするのは許せない。", main: "kyoko", sub: null, tag: "survival" },
+        { text: "感情よりも理性を優先して行動する。", main: "homura", sub: "kyoko", tag: "reason" },
+        { text: "憧れの人の背中を追い続けている。", main: "sayaka", sub: "homura", tag: "pursuit" },
+        { text: "自分には特別な才能がないと引け目を感じる。", main: "madoka", sub: "sayaka", tag: "modesty" },
+        { text: "大切な人を守るなら世界を敵に回してもいい。", main: "homura", sub: "kyoko", tag: "egoism" },
+        { text: "願いが叶うなら、どんな代償も払う覚悟だ。", main: "homura", sub: "kyoko", tag: "sacrifice" },
+        { text: "周囲の期待に応えなきゃとプレッシャーを感じる。", main: "mami", sub: "sayaka", tag: "social" },
+        { text: "友情のためなら、自分の恋心も犠牲にできる。", main: "sayaka", sub: "madoka", tag: "altruism" },
+        { text: "弱音を吐くのは苦手で、強くあろうとする。", main: "mami", sub: "homura", tag: "strength" },
+        { text: "お菓子や茶会など、日常の幸せを大事にしたい。", main: "mami", sub: "madoka", tag: "daily" },
+        { text: "他人の才能に嫉妬してしまうことがある。", main: "sayaka", sub: "homura", tag: "envy" },
+        { text: "「運命」という言葉を信じている。", main: "kyoko", sub: "homura", tag: "fate" },
+        { text: "信念を曲げるなら、一人で戦う道を選ぶ。", main: "kyoko", sub: "homura", tag: "solitude" },
+        { text: "誰からも必要とされないことが一番怖い。", main: "mami", sub: "madoka", tag: "social" },
+        { text: "決断を下すとき、迷って時間がかかる。", main: "madoka", sub: "sayaka", tag: "hesitation" },
+        { text: "秘密を一人で抱え込みがちだ。", main: "homura", sub: "mami", tag: "solitude" },
+        { text: "誰かを救うことが自分を救うことになると信じている。", main: "madoka", sub: "sayaka", tag: "altruism" },
+        { text: "報われない努力でも、最後までやり抜きたい。", main: "sayaka", sub: "kyoko", tag: "strength" },
+        { text: "自分を犠牲にして人を助けるのは偽善だと思う。", main: "kyoko", sub: null, tag: "egoism" },
+        { text: "頼れるお姉さん的な役割を振られることが多い。", main: "mami", sub: "kyoko", tag: "social" },
+        { text: "感情が昂ると、周りが見えなくなる。", main: "sayaka", sub: "kyoko", tag: "emotion" },
+        { text: "自分の居場所は、自分で勝ち取るものだ。", main: "kyoko", sub: "homura", tag: "survival" },
+        { text: "たとえ奇跡が起きなくても、選択を後悔しない。", main: "madoka", sub: "kyoko", tag: "fate" },
+        { text: "誰にも知られなくても、正しいことをしたい。", main: "madoka", sub: "homura", tag: "altruism" }
+    ];
+
+    const conflictPairs = [
+        { a: "altruism", b: "egoism" },
+        { a: "team", b: "solitude" },
+        { a: "reason", b: "emotion" }
+    ];
+
+    let currentQuestions = [];
+    let currentIndex = 0;
+    let scores = { madoka: 0, homura: 0, sayaka: 0, mami: 0, kyoko: 0 };
+    let answersLog = [];
+
+    function startQuiz(num) {
+        applyFadeEffect(() => {
+            document.getElementById('menu').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+            currentQuestions = [...questions].sort(() => 0.5 - Math.random()).slice(0, num);
+            currentIndex = 0;
+            scores = { madoka: 0, homura: 0, sayaka: 0, mami: 0, kyoko: 0 };
+            answersLog = [];
+            updateProgressBar();
+            showQuestion();
+        });
+    }
+
+    function applyFadeEffect(callback) {
+        const container = document.getElementById('main-container');
+        container.classList.remove('fade-in', 'aura-active');
+        container.style.removeProperty('--gem-color');
+        void container.offsetWidth;
+        container.classList.add('fade-in');
+        callback();
+    }
+
+    function updateProgressBar() {
+        const percent = (currentIndex / currentQuestions.length) * 100;
+        document.getElementById('progress-bar').style.width = percent + "%";
+        document.getElementById('progress-text').innerText = `計測完了率: ${Math.round(percent)}%`;
+    }
+
+    function showQuestion() {
+        document.getElementById('question-text').innerText = currentQuestions[currentIndex].text;
+    }
+
+    function handleAnswer(val) {
+        const q = currentQuestions[currentIndex];
+        answersLog.push({ tag: q.tag, val: val });
+
+        if (val === 2) {
+            if (q.main) scores[q.main] += 3;
+            if (q.sub) scores[q.sub] += 1;
+        } else if (val === 1) {
+            if (q.main) scores[q.main] += 1;
+        }
+
+        currentIndex++;
+        updateProgressBar();
+        if (currentIndex < currentQuestions.length) {
+            showQuestion();
+        } else {
+            setTimeout(() => applyFadeEffect(showResult), 200);
+        }
+    }
+
+    function showResult() {
+        document.getElementById('quiz-screen').classList.add('hidden');
+        document.getElementById('result-screen').classList.remove('hidden');
+        
+        // 優先順位: まどか > ほむら > 杏子 > マミ > さやか
+        const order = ['madoka', 'homura', 'kyoko', 'mami', 'sayaka'];
+        let winner = 'madoka';
+        let maxScore = -1;
+        order.forEach(id => {
+            if (scores[id] > maxScore) { maxScore = scores[id]; winner = id; }
+        });
+
+        // 合計スコア
+        const totalScore = Object.values(scores).reduce((a, b) => a + b, 0);
+        
+        // 矛盾検知
+        let conflictScore = 0;
+        conflictPairs.forEach(pair => {
+            const valsA = answersLog.filter(a => a.tag === pair.a).map(a => a.val);
+            const valsB = answersLog.filter(a => a.tag === pair.b).map(a => a.val);
+            const maxA = valsA.length ? Math.max(...valsA) : 0;
+            const maxB = valsB.length ? Math.max(...valsB) : 0;
+            if (maxA === 2 && maxB === 2) conflictScore++;
+        });
+
+        // 特殊ルート判定
+        if (totalScore <= 3) {
+            winner = 'kyubey';
+            document.getElementById('result-intro').innerText = "観測結果……";
+        } else if (conflictScore >= 2) {
+            winner = 'chaos';
+            document.getElementById('result-intro').innerText = "警告：因果がねじれているよ";
+        }
+
+        const resultChar = characters[winner];
+        const resEl = document.getElementById('result');
+        
+        document.documentElement.style.setProperty('--gem-color', resultChar.color);
+        document.getElementById('main-container').classList.add('aura-active');
+        
+        // キュゥべえ（白）の場合の視認性対策
+        if (winner === 'kyubey') {
+            resEl.style.color = "#444";
+        } else {
+            resEl.style.color = "var(--gem-color)";
+        }
+
+        resEl.innerText = resultChar.name;
+        document.getElementById('result-desc').innerText = resultChar.desc;
+        document.getElementById('progress-bar').style.width = "100%";
+    }
+
+    // クリック時の波紋
+    document.addEventListener('click', function (e) {
+        if (e.target.classList.contains('ripple-btn')) {
+            const btn = e.target;
+            const ripple = document.createElement('span');
+            const rect = btn.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            ripple.style.width = ripple.style.height = size + 'px';
+            ripple.style.left = e.clientX - rect.left - size / 2 + 'px';
+            ripple.style.top = e.clientY - rect.top - size / 2 + 'px';
+            ripple.classList.add('ripple');
+            btn.appendChild(ripple);
+            setTimeout(() => ripple.remove(), 500);
+        }
+    });
+</script>
+
+</body>
+</html>
