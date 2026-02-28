@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404 - 迷い込んだようだね</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --qb-red: #ff004c;
+      --qb-white: #f8f9fa;
+      --qb-gray: #e0e0e0;
+      --sayaka-blue: #00d4ff; 
+    }
+
+    body, html {
+      margin: 0; padding: 0;
+      height: 100%;
+      background-color: var(--qb-white);
+      font-family: 'Noto Serif JP', serif;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #333;
+    }
+
+    /* キュゥべえの絵文字 */
+    .qb-visual {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .qb-emoji-face {
+      font-size: 3rem;
+      font-family: 'sans-serif';
+      letter-spacing: -2px;
+      user-select: none;
+      color: #333;
+    }
+
+    /* 目（◕）だけを光らせるアニメーション */
+    .qb-eye {
+      display: inline-block;
+      transition: all 0.3s;
+      animation: qb-eye-glow-emoji 8s infinite;
+    }
+
+    @keyframes qb-eye-glow-emoji {
+      0%, 90%, 94%, 100% { 
+        color: #333; 
+        text-shadow: none; 
+      }
+      92% { 
+        color: var(--qb-red); 
+        text-shadow: 0 0 10px var(--qb-red), 0 0 20px var(--qb-red); 
+      }
+    }
+
+    /* メッセージエリア */
+    .container {
+      text-align: center;
+      z-index: 10;
+      max-width: 600px;
+      padding: 20px;
+    }
+
+    .error-code {
+      font-size: 5rem;
+      margin: 0;
+      letter-spacing: 0.5rem;
+      font-weight: 700;
+      position: relative;
+    }
+
+    /* タイプライター演出 */
+    .typewriter {
+      overflow: hidden;
+      white-space: nowrap;
+      margin: 10px auto;
+      border-right: 2px solid transparent;
+      width: 0;
+      animation: typing 2.5s steps(30, end) forwards;
+    }
+    .delay-1 { animation-delay: 2.5s; }
+
+    @keyframes typing {
+      from { width: 0; }
+      to { width: 100%; }
+    }
+
+    /* ボタンエリア */
+    .contract-box {
+      margin-top: 50px;
+      opacity: 0;
+      animation: fadeIn 1s forwards 5s;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .btn {
+      cursor: pointer;
+      text-decoration: none;
+      padding: 10px 20px;
+      border: 1px solid #333;
+      font-size: 0.9rem;
+      transition: 0.3s;
+      font-weight: bold;
+      display: inline-block;
+    }
+
+    /* 契約ボタン */
+    .btn-contract {
+      background: #333;
+      color: white;
+    }
+    .btn-contract:hover {
+      background: var(--qb-red);
+      border-color: var(--qb-red);
+      box-shadow: 0 0 15px rgba(255, 0, 76, 0.4);
+    }
+
+    /* 拒絶ボタン（さやか） */
+    .btn-deny {
+      color: #333;
+      background: transparent;
+    }
+    .btn-deny:hover {
+      background: var(--sayaka-blue);
+      color: white;
+      border-color: var(--sayaka-blue);
+      box-shadow: 0 0 15px rgba(0, 212, 255, 0.5);
+    }
+
+    /* 画面のグリッチ */
+    .glitch-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: transparent;
+      z-index: 100;
+      pointer-events: none;
+      animation: glitch-anim 8s infinite;
+    }
+
+    @keyframes glitch-anim {
+      0%, 95% { background: transparent; }
+      96% { background: rgba(255, 0, 76, 0.1); transform: skewX(2deg); }
+      97% { background: rgba(0, 212, 255, 0.1); transform: skewX(-2deg); }
+      98% { background: transparent; }
+    }
+
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    /* 退場演出用のオーバーレイ */
+    #exit-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background-color: var(--sayaka-blue);
+      z-index: 9999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.8s ease-in;
+    }
+  </style>
+</head>
+<body class="kuybe-theme">
+  <div id="exit-overlay"></div>
+  <div class="glitch-overlay"></div>
+  
+  <div class="container">
+    <div class="qb-visual">
+      <div class="qb-emoji-face">
+        ／人<span class="qb-eye">◕</span> ‿‿ <span class="qb-eye">◕</span>人＼
+      </div>
+    </div>
+
+    <div class="message-area">
+      <h1 class="error-code">404</h1>
+      <p class="typewriter">おかしいね。君が探しているページは、この宇宙のどこにも観測できない。</p>
+      <p class="typewriter delay-1">エントロピーの増大に耐えきれず、消滅してしまったみたいだ。</p>
+      
+      <div class="contract-box">
+        <p>僕と契約して、トップページに戻ってよ。</p>
+        <div class="btn-group">
+          <a href="index.html" class="btn btn-contract">契約する</a>
+          <a href="#" class="btn btn-deny" onclick="sayakaExit(event)">後悔なんて、あるわけない</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function sayakaExit(e) {
+      e.preventDefault();
+      const overlay = document.getElementById('exit-overlay');
+      
+      // 青いフラッシュ演出
+      overlay.style.opacity = '1';
+
+      setTimeout(() => {
+        // 履歴があれば戻り、なければトップページ（index.html）へ
+        if (document.referrer && document.referrer.indexOf(window.location.hostname) !== -1) {
+          window.history.back();
+        } else {
+          window.location.href = 'index.html';
+        }
+      }, 800); // 演出の秒数に合わせて移動
+    }
+  </script>
+</body>
+</html>
