@@ -16,7 +16,7 @@
       top: 0; left: 0;
       width: 100%; height: 100%;
       background: rgba(255, 255, 255, 0.9);
-      z-index: 10000;
+      z-index: 100000;
       flex-direction: column;
       align-items: center;
       justify-content: center;
@@ -41,7 +41,7 @@
       50% { transform: translateY(-20px) scale(1.05); }
     }
 
-    /* 追加：報告フォーム用スタイル */
+    /* 報告フォーム用スタイル */
     label {
       display: block;
       margin-top: 15px;
@@ -82,13 +82,20 @@
     <div class="loading-text">送信中だすぃ！<br>ちょっとだけ待ってね...</div>
   </div>
 
-  <div class="theme-switcher"><button class="theme-btn" onclick="toggleTheme()">デザイン切り替え</button></div>
+  <div class="theme-switcher">
+    <button class="theme-btn" onclick="toggleTheme()">デザイン切り替え</button>
+  </div>
 
   <div class="container">
     <div id="header-area">
-      <div class="header theme-only-akita" style="display:none; text-align: center; margin-bottom: 20px; border-bottom: 3px double var(--akita-gold);"><h1>出羽鯖 - 秋田ポータル</h1></div>
-      <div class="header-title theme-only-clean" style="text-align: center; font-size: 1.6em; font-weight: bold; margin-bottom: 25px;">
-        出羽鯖 総合申請ポータル<span class="snow-icon"></span>
+      <div class="header theme-only-akita" style="display:none; text-align: center; margin-bottom: 20px; border-bottom: 3px double var(--akita-gold); position: relative;">
+        <h1>出羽鯖 - 秋田ポータル</h1>
+        <span class="hanabi-icon" onclick="location.href='shindan/'"></span>
+      </div>
+      
+      <div class="header-title theme-only-clean" style="text-align: center; font-size: 1.6em; font-weight: bold; margin-bottom: 25px; position: relative;">
+        出羽鯖 総合申請ポータル
+        <span class="snow-icon" onclick="location.href='shindan/'"></span>
       </div>
     </div>
 
@@ -97,7 +104,8 @@
       <div class="tab" data-tab="rentcar">車両レンタル</div>
       <div class="tab" data-tab="returncar">返却・精算</div>
       <div class="tab" data-tab="status">貸出状況</div>
-      <div class="tab" data-tab="manage">管理・報告</div> </div>
+      <div class="tab" data-tab="manage">管理・報告</div>
+    </div>
 
     <div id="build" class="tab-content active">
       <h2>建築申請書</h2>
@@ -198,7 +206,6 @@
     </div>
   </div>
 
- <script src="script.js"></script>
-</body>
+  <script src="script.js"></script>
 </body>
 </html>
