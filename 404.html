@@ -189,7 +189,7 @@
       <div class="contract-box">
         <p>僕と契約して、トップページに戻ってよ。</p>
         <div class="btn-group">
-          <a href="index.html" class="btn btn-contract">契約する</a>
+          <a href="/Dewa_Server/" class="btn btn-contract">契約する</a>
           <a href="#" class="btn btn-deny" onclick="sayakaExit(event)">後悔なんて、あるわけない</a>
         </div>
       </div>
@@ -197,6 +197,12 @@
   </div>
 
   <script>
+    // 追加: index.html がURLに含まれる場合、表示をスッキリさせる
+    if (window.location.pathname.endsWith('/index.html')) {
+        const newPath = window.location.pathname.replace('/index.html', '/');
+        window.history.replaceState(null, '', newPath);
+    }
+
     function sayakaExit(e) {
       e.preventDefault();
       const overlay = document.getElementById('exit-overlay');
@@ -205,13 +211,14 @@
       overlay.style.opacity = '1';
 
       setTimeout(() => {
-        // 履歴があれば戻り、なければトップページ（index.html）へ
+        // 履歴があれば戻り、なければトップページ（Dewa_Server）へ
         if (document.referrer && document.referrer.indexOf(window.location.hostname) !== -1) {
           window.history.back();
         } else {
-          window.location.href = 'index.html';
+          // 修正点: ここも index.html を除いたパスに
+          window.location.href = '/Dewa_Server/';
         }
-      }, 800); // 演出の秒数に合わせて移動
+      }, 800);
     }
   </script>
 </body>
