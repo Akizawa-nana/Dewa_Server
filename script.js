@@ -522,6 +522,25 @@ document.getElementById("returnForm").onsubmit = function(e) {
 
 };
 
+// --- 秘密の領域へようこそ ---
+console.log(
+  "%c／人 ◕ ‿‿ ◕ 人 ＼",
+  "color: #e91e63; font-size: 50px; font-weight: bold; font-family: serif; text-shadow: 3px 3px 5px rgba(0,0,0,0.3);"
+);
+
+console.log(
+  "%c「……見つかっちゃったね」",
+  "color: #333; font-size: 22px; font-weight: bold; font-style: italic; background: #fff1f0; padding: 5px 15px; border-radius: 10px;"
+);
+
+console.log(
+  "%cこんなところまで覗き見ようとするなんて、君は本当に好奇心が旺盛だ。\n" +
+  "でも、深入りしすぎるのはお勧めしないよ。コードの裏側には、君が知らないほうが幸せな真実だってあるんだから。\n\n" +
+  "もしバグという名の『絶望』を見つけたなら、ボクに教えてよ。\n" +
+  "ボクなら、それを希望に変える対価として……君と契約してあげてもいいんだからね。",
+  "color: #666; font-size: 14px; line-height: 1.8; border-left: 4px solid #e91e63; padding-left: 15px;"
+);
+
 
 
 // 4. 管理報告
