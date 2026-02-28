@@ -55,7 +55,7 @@ body.theme-clean { background: var(--clean-bg); color: var(--clean-main); }
 }
 .theme-clean .tab.active { color: var(--clean-accent); border-bottom: 3px solid var(--clean-accent); }
 
-/* 雪の結晶 */
+/* 雪の結晶（クリーンモードの隠しリンク） */
 .theme-clean .snow-icon::after {
   content: "❄"; 
   position: absolute;
@@ -64,7 +64,9 @@ body.theme-clean { background: var(--clean-bg); color: var(--clean-main); }
   color: var(--akita-gold); 
   font-size: 1.6em; 
   opacity: 0.8;
-  pointer-events: none;
+  pointer-events: auto; /* クリック有効 */
+  cursor: default;     /* 指マークにしない */
+  user-select: none;
 }
 
 .header-title {
@@ -91,6 +93,31 @@ body.theme-akita {
 .theme-akita .tab { background: var(--akita-sea); color: var(--akita-gold); border: 1px solid var(--akita-gold); }
 .theme-akita .tab.active { background: var(--akita-gold); color: var(--akita-cedar); }
 .theme-akita input, .theme-akita select, .theme-akita textarea { background: #0d1117; border-color: #30363d; color: white; }
+
+/* 秋田テーマのヘッダー相対配置設定 */
+.theme-akita .header {
+  position: relative;
+}
+
+/* 大曲の花火（ダークモードの隠しリンク） */
+.theme-akita .hanabi-icon::after {
+  content: "✺"; /* 花火の火花をイメージ */
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  color: var(--akita-gold);
+  font-size: 1.4em;
+  opacity: 0.4;
+  pointer-events: auto; /* クリック有効 */
+  cursor: default;     /* 指マークにしない */
+  user-select: none;
+  animation: hanabi-blink 4s infinite ease-in-out; /* 微かに明滅 */
+}
+
+@keyframes hanabi-blink {
+  0%, 100% { opacity: 0.2; transform: scale(0.9); }
+  50% { opacity: 0.5; transform: scale(1.1); }
+}
 
 /* --- 共通UI --- */
 .tabs { display: flex; gap: 8px; margin-bottom: 25px; flex-wrap: wrap; }
