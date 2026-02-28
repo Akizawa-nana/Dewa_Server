@@ -306,10 +306,23 @@ function setupForms() {
     }
 }
 
-// --- 隠しメッセージ ---
+// --- 隠しメッセージの充実 ---
 function showKyubeySurprise() {
-    console.log("%c／人 ◕ ‿‿ ◕ 人 ＼", "color: #e91e63; font-size: 50px; font-weight: bold;");
-    console.log("%c「……見つかっちゃったね」", "color: #333; font-size: 20px; background: #fff1f0; padding: 5px;");
+    const quotes = [
+        "「僕と契約して、魔法少女になってよ！」",
+        "「わけがわからないよ。どうして人間はそんなに感情を溜め込むんだい？」",
+        "「君の願いは、エントロピーを凌駕した。さあ、受け取るがいい」",
+        "「この宇宙を守るためなんだ。君たちの犠牲は無駄じゃない」",
+        "「後悔なんて、意味のない感情だよ」",
+        "「君が魔女になるなら、僕たちがそれを食糧にする。合理的なサイクルだと思わないかい？」",
+        "「奇跡を望むなら、それに見合う絶望を引き受けてもらうよ」"
+    ];
+    
+    // ランダムに1つ選ぶ
+    const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+
+    console.log("%c／人 ◕ ‿‿ ◕ 人 ＼", "color: #e91e63; font-size: 40px; font-weight: bold;");
+    console.log(`%c${randomQuote}`, "color: #333; font-size: 16px; background: #fff1f0; padding: 8px; border-left: 5px solid #ff80ab;");
 }
 
 // --- 初期化実行 ---
