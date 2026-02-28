@@ -189,8 +189,16 @@ function toggleTheme() {
 }
 
 function applyThemeUI(isAkita) {
-    document.querySelectorAll('.theme-only-akita').forEach(e => e.style.display = isAkita ? 'block' : 'none');
-    document.querySelectorAll('.theme-only-clean').forEach(e => e.style.display = isAkita ? 'none' : 'block');
+    // 秋田テーマ専用要素の表示制御
+    document.querySelectorAll('.theme-only-akita').forEach(e => {
+        // blockだとデザインが崩れる場合は flex や table 等、HTMLの構造に合わせて調整してね
+        e.style.display = isAkita ? 'block' : 'none';
+    });
+
+    // クリーンテーマ専用要素の表示制御
+    document.querySelectorAll('.theme-only-clean').forEach(e => {
+        e.style.display = isAkita ? 'none' : 'block';
+    });
 }
 
 function loadTheme() {
