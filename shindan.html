@@ -23,41 +23,56 @@
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            overflow: hidden;
+            padding: 10px; /* 画面端の余白 */
+            box-sizing: border-box;
         }
 
-        /* 進捗プログレスバー */
-        .progress-container { position: fixed; top: 0; left: 0; width: 100%; height: 6px; background-color: #eee; z-index: 100; }
+        .progress-container { position: fixed; top: 0; left: 0; width: 100%; height: 4px; background-color: #eee; z-index: 100; }
         #progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--qb-pink), var(--qb-red)); transition: width 0.3s ease; }
 
         .container {
             background: var(--qb-white);
-            padding: 2.5rem;
-            border-radius: 25px;
+            padding: 1.5rem; /* パディングを縮小 */
+            border-radius: 20px;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-            max-width: 500px;
-            width: 90%;
+            max-width: 450px;
+            width: 100%;
+            max-height: 95vh; /* 画面の高さを越えないように制限 */
+            overflow-y: auto; /* はみ出た場合はスクロールを許可 */
             text-align: center;
             border: 1.5px solid rgba(255, 142, 181, 0.2);
-            transition: all 0.8s ease;
+            transition: all 0.6s ease;
+            box-sizing: border-box;
         }
 
-        /* ソウルジェムの輝き（オーラ）演出 */
-        .aura-active { box-shadow: 0 0 40px 10px var(--gem-color); border-color: var(--gem-color); }
+        /* スクロールバーのデザインも少し整えよう */
+        .container::-webkit-scrollbar { width: 5px; }
+        .container::-webkit-scrollbar-thumb { background: #ddd; border-radius: 10px; }
 
-        h1 { color: var(--qb-red); font-size: 1.5rem; margin-bottom: 1rem; }
-        .button-group { display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 25px; }
+        .aura-active { box-shadow: 0 0 30px 5px var(--gem-color); border-color: var(--gem-color); }
+
+        h1 { color: var(--qb-red); font-size: 1.3rem; margin: 0 0 0.5rem 0; }
+        p { font-size: 0.9rem; margin: 0 0 1rem 0; }
+
+        .button-group { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            gap: 10px; 
+            margin-top: 15px; 
+        }
 
         .btn {
             display: inline-block;
-            min-width: 240px;
-            padding: 14px 24px;
+            width: 100%; /* ボタンを横幅いっぱいに */
+            max-width: 280px;
+            padding: 12px 20px;
             background-color: var(--qb-white);
             color: var(--qb-pink);
             border: 2px solid var(--qb-pink);
             border-radius: 50px;
             cursor: pointer;
-            font-size: 1rem;
+            font-size: 0.95rem;
             font-weight: bold;
             transition: all 0.2s ease;
             position: relative;
@@ -65,28 +80,21 @@
             outline: none;
         }
 
-        .btn:hover { background-color: var(--qb-pink); color: var(--qb-white); transform: translateY(-2px); }
-        .btn:active { transform: translateY(1px) scale(0.95); }
-        .btn-secondary { border-color: #d1d1d1; color: #888; min-width: 180px; }
+        .btn:hover { background-color: var(--qb-pink); color: var(--qb-white); transform: translateY(-1px); }
+        .btn:active { transform: translateY(1px) scale(0.98); }
+        .btn-secondary { border-color: #d1d1d1; color: #888; }
+        .btn-back { border-color: #ffb6c1; color: #ffb6c1; margin-top: 5px; font-size: 0.85rem; padding: 8px; }
 
-        .question { font-size: 1.2rem; margin: 30px 0; font-weight: bold; line-height: 1.6; min-height: 4.5rem; display: flex; align-items: center; justify-content: center; }
+        .question { font-size: 1.1rem; margin: 20px 0; font-weight: bold; line-height: 1.5; min-height: 4rem; display: flex; align-items: center; justify-content: center; }
         
-        /* 結果表示：視認性を確保 */
-        #result { 
-            font-size: 2rem; 
-            margin: 20px 0; 
-            font-weight: bold; 
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
-        }
-        
-        #result-desc { background: rgba(255, 255, 255, 0.8); padding: 20px; border-radius: 15px; border: 1px dashed var(--gem-color); margin-bottom: 25px; text-align: left; }
+        #result { font-size: 1.8rem; margin: 15px 0; font-weight: bold; }
+        #result-desc { background: rgba(255, 255, 255, 0.8); padding: 15px; border-radius: 12px; border: 1px dashed var(--gem-color); margin-bottom: 20px; text-align: left; font-size: 0.9rem; }
         .hidden { display: none !important; }
 
-        /* エフェクト */
-        .ripple { position: absolute; border-radius: 50%; background: rgba(255, 255, 255, 0.6); transform: scale(0); animation: ripple-animation 0.5s linear; pointer-events: none; }
-        @keyframes ripple-animation { to { transform: scale(4); opacity: 0; } }
+        .ripple { position: absolute; border-radius: 50%; background: rgba(255, 255, 255, 0.4); transform: scale(0); animation: ripple-animation 0.4s linear; pointer-events: none; }
+        @keyframes ripple-animation { to { transform: scale(3); opacity: 0; } }
         .fade-in { animation: fadeIn 0.4s ease-out forwards; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
@@ -100,18 +108,19 @@
         <div class="button-group">
             <button class="btn ripple-btn" onclick="startQuiz(15)">しっかり診断 (15問)</button>
             <button class="btn ripple-btn" onclick="startQuiz(30)">本格診断 (30問)</button>
-            <a href="index.html" class="btn btn-secondary ripple-btn">出羽鯖に戻る</a>
+            <a href="index.html" class="btn btn-secondary ripple-btn" style="text-decoration:none;">出羽鯖に戻る</a>
         </div>
     </div>
 
     <div id="quiz-screen" class="hidden">
-        <div id="progress-text" style="font-size: 0.8rem; color: #999;"></div>
+        <div id="progress-text" style="font-size: 0.75rem; color: #999;"></div>
         <div class="question" id="question-text"></div>
         <div class="button-group">
             <button class="btn ripple-btn" onclick="handleAnswer(2)">とても思う</button>
             <button class="btn ripple-btn" onclick="handleAnswer(1)">まあまあ思う</button>
             <button class="btn ripple-btn" onclick="handleAnswer(0)">あまり思わない</button>
             <button class="btn ripple-btn" onclick="handleAnswer(0)">全く思わない</button>
+            <button id="back-btn" class="btn btn-secondary btn-back ripple-btn hidden" onclick="goBack()">一つ前に戻る</button>
         </div>
     </div>
 
@@ -121,7 +130,7 @@
         <div id="result-desc"></div>
         <div class="button-group">
             <button class="btn ripple-btn" onclick="location.reload()">もう一度診断する</button>
-            <a href="index.html" class="btn btn-secondary ripple-btn">出羽鯖に戻る</a>
+            <a href="index.html" class="btn btn-secondary ripple-btn" style="text-decoration:none;">出羽鯖に戻る</a>
         </div>
     </div>
 </div>
@@ -180,6 +189,7 @@
     let currentIndex = 0;
     let scores = { madoka: 0, homura: 0, sayaka: 0, mami: 0, kyoko: 0 };
     let answersLog = [];
+    let history = []; 
 
     function startQuiz(num) {
         applyFadeEffect(() => {
@@ -189,6 +199,7 @@
             currentIndex = 0;
             scores = { madoka: 0, homura: 0, sayaka: 0, mami: 0, kyoko: 0 };
             answersLog = [];
+            history = [];
             updateProgressBar();
             showQuestion();
         });
@@ -211,9 +222,22 @@
 
     function showQuestion() {
         document.getElementById('question-text').innerText = currentQuestions[currentIndex].text;
+        const backBtn = document.getElementById('back-btn');
+        if (currentIndex > 0) {
+            backBtn.classList.remove('hidden');
+        } else {
+            backBtn.classList.add('hidden');
+        }
+        // 質問が変わるたびにコンテナのスクロールを一番上に戻すよ
+        document.getElementById('main-container').scrollTop = 0;
     }
 
     function handleAnswer(val) {
+        history.push({
+            scores: JSON.parse(JSON.stringify(scores)),
+            answersLog: JSON.parse(JSON.stringify(answersLog))
+        });
+
         const q = currentQuestions[currentIndex];
         answersLog.push({ tag: q.tag, val: val });
 
@@ -233,11 +257,21 @@
         }
     }
 
+    function goBack() {
+        if (currentIndex > 0 && history.length > 0) {
+            currentIndex--;
+            const prevState = history.pop();
+            scores = prevState.scores;
+            answersLog = prevState.answersLog;
+            updateProgressBar();
+            showQuestion();
+        }
+    }
+
     function showResult() {
         document.getElementById('quiz-screen').classList.add('hidden');
         document.getElementById('result-screen').classList.remove('hidden');
         
-        // 優先順位: まどか > ほむら > 杏子 > マミ > さやか
         const order = ['madoka', 'homura', 'kyoko', 'mami', 'sayaka'];
         let winner = 'madoka';
         let maxScore = -1;
@@ -245,10 +279,7 @@
             if (scores[id] > maxScore) { maxScore = scores[id]; winner = id; }
         });
 
-        // 合計スコア
         const totalScore = Object.values(scores).reduce((a, b) => a + b, 0);
-        
-        // 矛盾検知
         let conflictScore = 0;
         conflictPairs.forEach(pair => {
             const valsA = answersLog.filter(a => a.tag === pair.a).map(a => a.val);
@@ -258,7 +289,6 @@
             if (maxA === 2 && maxB === 2) conflictScore++;
         });
 
-        // 特殊ルート判定
         if (totalScore <= 3) {
             winner = 'kyubey';
             document.getElementById('result-intro').innerText = "観測結果……";
@@ -269,11 +299,9 @@
 
         const resultChar = characters[winner];
         const resEl = document.getElementById('result');
-        
         document.documentElement.style.setProperty('--gem-color', resultChar.color);
         document.getElementById('main-container').classList.add('aura-active');
         
-        // キュゥべえ（白）の場合の視認性対策
         if (winner === 'kyubey') {
             resEl.style.color = "#444";
         } else {
@@ -283,9 +311,9 @@
         resEl.innerText = resultChar.name;
         document.getElementById('result-desc').innerText = resultChar.desc;
         document.getElementById('progress-bar').style.width = "100%";
+        document.getElementById('main-container').scrollTop = 0;
     }
 
-    // クリック時の波紋
     document.addEventListener('click', function (e) {
         if (e.target.classList.contains('ripple-btn')) {
             const btn = e.target;
@@ -297,7 +325,7 @@
             ripple.style.top = e.clientY - rect.top - size / 2 + 'px';
             ripple.classList.add('ripple');
             btn.appendChild(ripple);
-            setTimeout(() => ripple.remove(), 500);
+            setTimeout(() => ripple.remove(), 400);
         }
     });
 </script>
