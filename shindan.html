@@ -129,9 +129,9 @@
 <div class="container fade-in" id="main-container">
     <div id="menu">
         <h1>魔法少女適性診断</h1>
-        <p class="sub-p">「君が支払う対価を、僕が量ってあげよう」</p>
+        <p class="sub-p">「君がどんな願いを叶えるのか、僕に教えてよ」</p>
         <div class="button-group">
-            <button class="btn ripple-btn" onclick="startQuiz(15)">しっかり診断 (15問)</button>
+            <button class="btn ripple-btn" onclick="startQuiz(15)">お手軽診断 (15問)</button>
             <button class="btn ripple-btn" onclick="startQuiz(30)">本格診断 (30問)</button>
             <a href="index.html" class="btn btn-secondary ripple-btn">出羽鯖に戻る</a>
         </div>
@@ -272,13 +272,21 @@ const characters = {
             }
         }
 
-        const res = winner === "witch" ? { name: "魔女", color: "#444", desc: "ソウルジェムが真っ黒だ。絶望に沈んだ君の魂を回収するよ。" } : characters[winner];
-        document.getElementById('result').innerText = res.name;
-        document.getElementById('result').style.color = res.color;
-        document.getElementById('result-desc').innerText = res.desc;
-        document.documentElement.style.setProperty('--gem-color', res.color);
-        document.getElementById('main-container').classList.add('aura-active');
-    }
+const res = winner === "witch" ? { 
+        name: "測定不能 (計測エラー)", 
+        color: "#222", 
+        desc: "おや、計測不能だ。君の魂の出力は僕の予測を超えてしまったみたいだね。……いずれ、この意味がわかる時が来るはずだよ。それまでは、君らしくその日々を過ごすといい。" 
+    } : characters[winner];
+
+    document.getElementById('result').innerText = res.name;
+    document.getElementById('result').style.color = res.color;
+    document.getElementById('result-desc').innerText = res.desc;
+    
+    // エラー時はより禍々しい「黒に近い紫」のオーラを放つ演出
+    const auraColor = winner === "witch" ? "#2e0854" : res.color;
+    document.documentElement.style.setProperty('--gem-color', auraColor);
+    document.getElementById('main-container').classList.add('aura-active');
+}
 
     // 隠しコマンド監視
     document.addEventListener('keydown', (e) => {
