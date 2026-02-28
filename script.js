@@ -346,50 +346,6 @@ function showKyubeySurprise() {
         "color: #333; font-size: 16px; background: #fff1f0; padding: 8px; border-left: 5px solid #ff80ab;"
     );
 } // ← ここでしっかり関数を閉じています
-// --- 見滝原市モードの演出 ---
-
-function rewriteToMitakihara() {
-    console.log("%c[SYSTEM] Timeline anomaly detected. Overwriting to Mitakihara...", "color: red; font-weight: bold;");
-
-    // ヘッダータイトルの書き換え
-    const cleanHeader = document.querySelector('.header-title.theme-only-clean');
-    const akitaHeader = document.querySelector('.header.theme-only-akita h1');
-    
-    if (cleanHeader) {
-        // テキストノードのみを書き換えてアイコン(span)を保護
-        cleanHeader.childNodes[0].textContent = "見滝原市 総合申請ポータル ";
-        const snowIcon = cleanHeader.querySelector('.snow-icon');
-        if (snowIcon) snowIcon.style.filter = "hue-rotate(150deg) brightness(0.7) drop-shadow(0 0 5px red)";
-    }
-    
-    if (akitaHeader) {
-        akitaHeader.innerText = "見滝原市 - 行政ポータル";
-        const hanabiIcon = document.querySelector('.hanabi-icon');
-        if (hanabiIcon) hanabiIcon.style.filter = "grayscale(1) contrast(200%)";
-    }
-
-    // フォームのボタンを「契約」に変更
-    document.querySelectorAll('.main-submit').forEach(btn => {
-        if (btn.innerText.includes("申請")) btn.innerText = "契約を提出する";
-        if (btn.innerText.includes("レンタル")) btn.innerText = "契約を開始する";
-    });
-
-    // タブ名の書き換え
-    document.querySelectorAll('.tab').forEach(tab => {
-        if (tab.innerText === "建築申請") tab.innerText = "建築契約";
-        if (tab.innerText === "管理・報告") tab.innerText = "管理･契約";
-    });
-
-    // チャットボット（黄桜すい）の変貌
-    const msgBot = document.querySelector('.msg-bot');
-    if (msgBot) {
-        msgBot.innerText = "見滝原市へようこそ。君は、どんな願いのためにここへ来たのかな？";
-    }
-    
-    // 背景をわずかに不穏な色調に（CSS変数の上書きなどが理想ですが、簡易的に全体フィルタ）
-    document.body.style.transition = "filter 2s ease";
-    document.body.style.filter = "contrast(1.1) saturate(1.1) sepia(0.1)";
-}
 
 // --- 初期化実行 (既存のものを書き換え) ---
 window.onload = () => {
@@ -398,12 +354,6 @@ window.onload = () => {
     setupTabs();
     setupForms();
     showKyubeySurprise();
-
-    // 3%の確率で見滝原市ポータルへ
-    if (Math.random() < 0) {
-        rewriteToMitakihara();
-    }
-
     // チャットのエンターキー監視
     const userIn = document.getElementById("userInput");
     if (userIn) {
