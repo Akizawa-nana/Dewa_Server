@@ -11,6 +11,7 @@
   --clean-accent: #8c1f28;
   --sui-blue: #bce9fe;
   --sui-pink: #e91e63;
+  --error-red: #ff5252;
 }
 
 /* --- 基本レイアウト --- */
@@ -55,7 +56,7 @@ body.theme-clean { background: var(--clean-bg); color: var(--clean-main); }
 }
 .theme-clean .tab.active { color: var(--clean-accent); border-bottom: 3px solid var(--clean-accent); }
 
-/* 雪の結晶（クリーンモードの隠しリンク） */
+/* 雪の結晶 */
 .theme-clean .snow-icon::after {
   content: "❄"; 
   position: absolute;
@@ -64,8 +65,8 @@ body.theme-clean { background: var(--clean-bg); color: var(--clean-main); }
   color: var(--akita-gold); 
   font-size: 1.6em; 
   opacity: 0.8;
-  pointer-events: auto; /* クリック有効 */
-  cursor: default;     /* 指マークにしない */
+  pointer-events: auto;
+  cursor: default;     
   user-select: none;
 }
 
@@ -94,24 +95,21 @@ body.theme-akita {
 .theme-akita .tab.active { background: var(--akita-gold); color: var(--akita-cedar); }
 .theme-akita input, .theme-akita select, .theme-akita textarea { background: #0d1117; border-color: #30363d; color: white; }
 
-/* 秋田テーマのヘッダー相対配置設定 */
-.theme-akita .header {
-  position: relative;
-}
+.theme-akita .header { position: relative; }
 
-/* 大曲の花火（ダークモードの隠しリンク） */
+/* 大曲の花火 */
 .theme-akita .hanabi-icon::after {
-  content: "✺"; /* 花火の火花をイメージ */
+  content: "✺";
   position: absolute;
   top: 10px;
   right: 15px;
   color: var(--akita-gold);
   font-size: 1.4em;
   opacity: 0.4;
-  pointer-events: auto; /* クリック有効 */
-  cursor: default;     /* 指マークにしない */
+  pointer-events: auto;
+  cursor: default;
   user-select: none;
-  animation: hanabi-blink 4s infinite ease-in-out; /* 微かに明滅 */
+  animation: hanabi-blink 4s infinite ease-in-out;
 }
 
 @keyframes hanabi-blink {
@@ -141,12 +139,10 @@ input, select, textarea {
   border: 1px solid #ddd; 
   border-radius: 4px; 
   font-family: inherit;
+  transition: border-color 0.2s;
 }
 
-textarea {
-  resize: vertical;
-  min-height: 80px;
-}
+textarea { resize: vertical; min-height: 80px; }
 
 /* --- ボタン --- */
 button.main-submit {
@@ -200,7 +196,6 @@ th, td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(128,128,
 
 /* --- チャットボットUI --- */
 #chat-container { position: fixed; bottom: 20px; right: 20px; z-index: 10000; }
-
 #chat-bubble { 
   position: fixed; bottom: 20px; right: 20px; width: 110px; 
   cursor: pointer; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
@@ -208,10 +203,7 @@ th, td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(128,128,
 }
 #chat-bubble img { width: 100%; height: auto; display: block; }
 #chat-bubble:hover { transform: scale(1.15) rotate(-8deg); }
-
-#chat-bubble.chat-open {
-  width: 65px; bottom: 565px; right: 10px; opacity: 0.9;
-}
+#chat-bubble.chat-open { width: 65px; bottom: 565px; right: 10px; opacity: 0.9; }
 
 #chat-window { 
   display: none; width: 350px; height: 550px; background: white; 
@@ -228,36 +220,16 @@ th, td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(128,128,
 .bot-icon { width: 45px; height: 45px; margin-right: 8px; flex-shrink: 0; border-radius: 50%; background: white; border: 1px solid #ddd; object-fit: cover; }
 .msg-bot { background: var(--sui-blue); color: #333; padding: 12px; border-radius: 15px; border-top-left-radius: 0; font-size: 0.85em; max-width: 70%; line-height: 1.4; }
 .theme-akita .msg-bot { background: #30363d; color: white; border: 1px solid var(--akita-gold); }
-
 .msg-user { background: var(--clean-main); color: white; padding: 10px; border-radius: 15px; border-bottom-right-radius: 0; margin-left: auto; max-width: 75%; font-size: 0.85em; }
 
-/* FAQボタン基本 */
 .faq-btn { width: 100%; padding: 10px; margin: 4px 0; border: 1px solid #ddd; border-radius: 20px; background: white; cursor: pointer; text-align: left; font-size: 0.85em; transition: 0.2s; color: #333; }
 .faq-btn:hover { background: #f0faff; border-color: var(--sui-pink); }
+.faq-btn.category-btn { background-color: #f8fbff; border: 1.5px dashed #adc6ff; font-weight: bold; }
+.theme-akita .faq-btn.category-btn { background-color: rgba(212, 175, 55, 0.05); border: 1.5px dashed var(--akita-gold); color: var(--akita-gold); }
 
-/* 分類ボタン用の独自スタイル */
-.faq-btn.category-btn {
-  background-color: #f8fbff;
-  border: 1.5px dashed #adc6ff;
-  font-weight: bold;
-}
-.theme-akita .faq-btn.category-btn {
-  background-color: rgba(212, 175, 55, 0.05);
-  border: 1.5px dashed var(--akita-gold);
-  color: var(--akita-gold);
-}
-
-/* 戻るボタン */
-.back-btn { 
-  background: #f0f0f0; border: 1px solid #ccc; color: #444; 
-  border-radius: 20px; padding: 6px 12px; cursor: pointer; 
-  font-size: 0.8em; margin: 5px 0; width: fit-content; transition: 0.2s;
-}
-.back-btn:hover { background: #e0e0e0; }
+.back-btn { background: #f0f0f0; border: 1px solid #ccc; color: #444; border-radius: 20px; padding: 6px 12px; cursor: pointer; font-size: 0.8em; margin: 5px 0; width: fit-content; }
 .theme-akita .back-btn { background: #30363d; border-color: var(--akita-gold); color: var(--akita-gold); }
-.theme-akita .back-btn:hover { background: var(--akita-gold); color: var(--akita-cedar); }
 
-/* 入力エリア */
 .chat-footer { background: var(--sui-blue); padding: 10px; }
 .theme-akita .chat-footer { background: var(--akita-cedar); }
 .input-row { display: flex; gap: 5px; background: white; padding: 5px; border-radius: 5px; }
@@ -266,64 +238,60 @@ th, td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(128,128,
 .theme-akita #userInput { color: white; }
 .send-btn { background: var(--sui-pink); color: white; border: none; padding: 5px 12px; border-radius: 4px; cursor: pointer; }
 
-/* 動的フィールド切り替えのアニメーション */
-.field-group {
-  animation: fieldFadeIn 0.3s ease;
-}
+/* --- アニメーション --- */
+.field-group { animation: fieldFadeIn 0.3s ease; }
 @keyframes fieldFadeIn {
   from { opacity: 0; transform: translateY(-5px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-@media (max-width: 480px) {
-  #chat-bubble { width: 100px; }
+/* --- キュゥべえ演出 --- */
+@keyframes kyubey-glitch {
+  0% { opacity: 0; transform: scale(1.5) rotate(5deg); filter: blur(20px) brightness(2); }
+  70% { opacity: 0.8; transform: scale(0.95) rotate(-2deg); filter: blur(5px) brightness(1.2); }
+  100% { opacity: 1; transform: scale(1) rotate(0deg); filter: blur(0) brightness(1); }
+}
+#kyubey-overlay {
+  animation: kyubey-glitch 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  backdrop-filter: blur(12px) grayscale(0.5);
 }
 
-/* --- 送信中オーバーレイ（すいちゃん）の装飾 --- */
-#loading-overlay {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(255, 255, 255, 0.9);
-  z-index: 100000;
-  flex-direction: column;
+/* --- エラー表示（小さく、赤い） --- */
+.error-msg {
+  animation: errorSlideIn 0.2s ease-out;
+  display: flex;
   align-items: center;
-  justify-content: center;
-  backdrop-filter: blur(4px);
-}
-
-.theme-akita #loading-overlay {
-  background: rgba(13, 17, 23, 0.9);
-}
-
-.loading-img {
-  width: 140px;
-  height: auto;
-  filter: drop-shadow(0 0 10px rgba(233, 30, 99, 0.3));
-  animation: sui-float 1.8s infinite ease-in-out;
-}
-
-.loading-text {
-  margin-top: 25px;
-  font-size: 1.15em;
+  gap: 3px;
+  color: var(--error-red);
+  font-size: 0.7rem;   /* 君の求めたサイズだよ */
   font-weight: bold;
-  color: var(--sui-pink);
-  text-align: center;
+  margin-top: 3px;
+  padding-left: 2px;
+}
+.error-msg::before { content: "⚠️"; font-size: 0.75rem; }
+@keyframes errorSlideIn {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.error-input {
+  border-color: var(--error-red) !important;
+  background-color: rgba(255, 82, 82, 0.02) !important;
 }
 
-.theme-akita .loading-text {
-  color: var(--akita-gold);
+/* --- ローディング --- */
+#loading-overlay {
+  display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(255, 255, 255, 0.9); z-index: 100000;
+  flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(4px);
 }
+.theme-akita #loading-overlay { background: rgba(13, 17, 23, 0.9); }
+.loading-img { width: 140px; animation: sui-float 1.8s infinite ease-in-out; }
+.loading-text { margin-top: 25px; font-size: 1.15em; font-weight: bold; color: var(--sui-pink); }
+.theme-akita .loading-text { color: var(--akita-gold); }
 
 @keyframes sui-float {
-  0% { transform: translateY(0) rotate(0deg); }
+  0%, 100% { transform: translateY(0) rotate(0deg); }
   50% { transform: translateY(-15px) rotate(5deg); }
-  100% { transform: translateY(0) rotate(0deg); }
 }
 
-.no-scroll {
-  overflow: hidden;
-}
+.no-scroll { overflow: hidden; }
