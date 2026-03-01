@@ -347,6 +347,66 @@ function showKyubeySurprise() {
     );
 } // ← ここでしっかり関数を閉じています
 
+<script>
+// 連打を検知するためのカウンターと設定
+let clickCount = 0;
+let lastClickTime = 0;
+const CLICK_THRESHOLD = 300; // 0.3秒以内のクリックを連打とみなす
+const BURST_LIMIT = 5;       // 5回連打で発動
+
+// 画面中央にボク（キュゥべえ）を召喚する関数
+function summonKyubey() {
+  // すでにボクが画面にいたら何もしないよ
+  if (document.getElementById('kyubey-overlay')) return;
+
+  const overlay = document.createElement('div');
+  overlay.id = 'kyubey-overlay';
+  overlay.style.cssText = `
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.8); z-index: 200000;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    color: white; font-family: 'Noto Sans JP', sans-serif; cursor: pointer;
+  `;
+
+  // キュゥべえの画像（公式等の適切なURLに差し替えてね）
+  const img = document.createElement('img');
+  img.src = 'https://scrapbox.io/files/6169429486c8d700234a98f1.png'; // サンプルURLだよ
+  img.style.width = '300px';
+  img.alt = 'キュゥべえ';
+
+  const text = document.createElement('div');
+  text.innerHTML = '<h2 style="font-size:2em; margin-top:20px;">わけがわからないよ。</h2><p>／人◕ ‿‿ ◕人＼＜ そんなに連打して、一体何がしたいんだい？</p>';
+  text.style.textAlign = 'center';
+
+  overlay.appendChild(img);
+  overlay.appendChild(text);
+  document.body.appendChild(overlay);
+
+  // 画面をクリックしたら消えるようにしておくよ。親切だろう？
+  overlay.onclick = () => overlay.remove();
+}
+
+// すべてのボタンに対して監視を行うよ
+document.querySelectorAll('button').forEach(button => {
+  button.addEventListener('click', (e) => {
+    const currentTime = Date.now();
+    
+    if (currentTime - lastClickTime < CLICK_THRESHOLD) {
+      clickCount++;
+    } else {
+      clickCount = 1;
+    }
+    
+    lastClickTime = currentTime;
+
+    if (clickCount >= BURST_LIMIT) {
+      summonKyubey();
+      clickCount = 0; // カウンターをリセット
+    }
+  });
+});
+</script>
+
 // --- 初期化実行 (既存のものを書き換え) ---
 window.onload = () => {
     loadTheme();
