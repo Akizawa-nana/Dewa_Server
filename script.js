@@ -1,11 +1,18 @@
 /**
  * 統合スクリプト (script.js)
+ * キュゥべえエディション ／人◕ ‿‿ ◕人＼
  */
 
 const GAS_URL = "https://script.google.com/macros/s/AKfycbzh3BU8YQ2oHcuWT3CW96_k-OxbGICrxfaMUegU6K1O5e-GWJe_vYysqV_llFIuPZMP/exec";
 const SUI_IMG = "https://i0.wp.com/kizakurasui.jp/wp-content/uploads/2019/03/-e1552528466283.png";
 let currentRentData = [];
 let currentFaqData = [];
+
+// 連打検知用の変数
+let clickCount = 0;
+let lastClickTime = 0;
+const CLICK_THRESHOLD = 300; // 0.3秒以内のクリックを連打とみなす
+const BURST_LIMIT = 5;       // 5回連打で発動
 
 // --- ユーティリティ・表示制御 ---
 
@@ -189,13 +196,9 @@ function toggleTheme() {
 }
 
 function applyThemeUI(isAkita) {
-    // 秋田テーマ専用要素の表示制御
     document.querySelectorAll('.theme-only-akita').forEach(e => {
-        // blockだとデザインが崩れる場合は flex や table 等、HTMLの構造に合わせて調整してね
         e.style.display = isAkita ? 'block' : 'none';
     });
-
-    // クリーンテーマ専用要素の表示制御
     document.querySelectorAll('.theme-only-clean').forEach(e => {
         e.style.display = isAkita ? 'none' : 'block';
     });
@@ -225,196 +228,171 @@ function calculateFee() {
 // --- フォーム送信処理 ---
 
 function setupForms() {
-    const buildForm = document.getElementById("buildForm");
-    if (buildForm) {
-        buildForm.onsubmit = function(e) {
-            e.preventDefault();
-            toggleLoading(true);
-            const d = new URLSearchParams(new FormData(this));
-            d.append("mode", "build");
-            fetch(GAS_URL, { method: "POST", body: d, mode: "no-cors" })
-                .then(() => {
-                    toggleLoading(false);
-                    alert("建築申請を提出しました！すぐに建築を始めてOKだすぃ！");
-                    this.reset();
-                })
-                .catch(() => {
-                    toggleLoading(false);
-                    alert("送信エラーだすぃ...");
-                });
-        };
-    }
+    const forms = [
+        { id: "buildForm", mode: "build", msg: "建築申請を提出しました！" },
+        { id: "rentForm", mode: "rent", msg: "レンタル開始！安全運転でね！" },
+        { id: "returnForm", mode: "return", msg: "返却完了！お疲れさま！" },
+        { id: "manageForm", mode: "manage", msg: "報告を受付ました。" }
+    ];
 
-    const rentForm = document.getElementById("rentForm");
-    if (rentForm) {
-        rentForm.onsubmit = function(e) {
-            e.preventDefault();
-            toggleLoading(true);
-            const d = new URLSearchParams(new FormData(this));
-            d.append("mode", "rent");
-            fetch(GAS_URL, { method: "POST", body: d })
-                .then(r => r.json())
-                .then(res => {
-                    toggleLoading(false);
-                    if (res.status === "error") {
-                        alert(res.message + "だすぃ！");
-                    } else {
-                        alert("レンタル開始！安全運転でね！");
-                        location.reload();
-                    }
-                })
-                .catch(() => {
-                    toggleLoading(false);
-                    alert("接続エラーだすぃ...");
-                });
-        };
-    }
+    forms.forEach(f => {
+        const formEl = document.getElementById(f.id);
+        if (formEl) {
+            formEl.onsubmit = function(e) {
+                e.preventDefault();
 
-    const returnForm = document.getElementById("returnForm");
-    if (returnForm) {
-        returnForm.onsubmit = function(e) {
-            e.preventDefault();
-            toggleLoading(true);
-            const d = new URLSearchParams();
-            d.append("mode", "return");
-            d.append("mcid", document.getElementById("returnMcid").value);
-            d.append("number", document.getElementById("returnCarSelect").value);
-            fetch(GAS_URL, { method: "POST", body: d })
-                .then(() => {
-                    toggleLoading(false);
-                    alert("返却完了！お疲れさまだすぃ！");
-                    location.reload();
-                })
-                .catch(() => {
-                    toggleLoading(false);
-                    alert("エラーだすぃ...");
+                // 既存のエラー表示をクリア
+                this.querySelectorAll(".error-msg").forEach(el => el.remove());
+                this.querySelectorAll(".error-input").forEach(el => {
+                    el.classList.remove("error-input");
+                    el.style.borderColor = "";
                 });
-        };
-    }
 
-    const manageForm = document.getElementById("manageForm");
-    if (manageForm) {
-        manageForm.onsubmit = function(e) {
-            e.preventDefault();
-            toggleLoading(true);
-            const d = new URLSearchParams(new FormData(this));
-            d.append("mode", "manage");
-            fetch(GAS_URL, { method: "POST", body: d, mode: "no-cors" })
-                .then(() => {
-                    toggleLoading(false);
-                    alert("報告を受付ました。運営が確認するだすぃ！");
-                    this.reset();
-                    toggleManageFields();
-                })
-                .catch(() => {
-                    toggleLoading(false);
-                    alert("送信エラーだすぃ...");
-                });
-        };
+                const inputs = this.querySelectorAll("input, select, textarea");
+                let isAllFilled = true;
+
+                for (let input of inputs) {
+    if (input.offsetParent !== null && !input.value.trim()) {
+        isAllFilled = false;
+        
+        const msg = document.createElement("div");
+        msg.className = "error-msg";
+        // 文言は君の好きなように変えられるけど、今回は簡潔にしたよ
+        msg.textContent = "この項目を入力してください。";
+        
+        input.classList.add("error-input");
+        // もし以前のコードで input.style.borderColor を直接いじっていたら、
+        // クラス管理の邪魔になるから削除しておいてね。
+        input.parentNode.insertBefore(msg, input.nextSibling);
     }
 }
 
-// --- 隠しメッセージの充実 ---
+                if (!isAllFilled) return;
+
+                toggleLoading(true);
+                const d = new URLSearchParams(new FormData(this));
+                d.append("mode", f.mode);
+                
+                fetch(GAS_URL, { 
+                    method: "POST", 
+                    body: d, 
+                    mode: (f.mode === "build" || f.mode === "manage" ? "no-cors" : "cors") 
+                })
+                .then(() => {
+                    toggleLoading(false);
+                    alert(f.msg);
+                    this.reset();
+                    if(f.id === "rentForm" || f.id === "returnForm") location.reload();
+                })
+                .catch(() => {
+                    toggleLoading(false);
+                    alert("通信エラーです。");
+                });
+            };
+        }
+    });
+}
+
+// --- 隠し機能：キュゥべえ召喚（演出強化・スマホ配慮版） ---
+function summonKyubey() {
+    if (document.getElementById('kyubey-overlay')) return;
+    
+    const overlay = document.createElement('div');
+    overlay.id = 'kyubey-overlay';
+    overlay.style.cssText = `
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.85); z-index: 200000;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        color: white; font-family: 'Noto Sans JP', sans-serif;
+        opacity: 0; transition: opacity 0.8s ease;
+    `;
+
+    const img = document.createElement('img');
+    img.src = 'https://i.imgur.com/PMOOP0t.png';
+    img.style.width = '320px';
+    img.style.maxWidth = '80vw';
+    img.style.filter = 'drop-shadow(0 0 20px rgba(255,255,255,0.2))';
+
+    const text = document.createElement('div');
+    text.style.textAlign = 'center';
+    text.style.padding = '20px';
+    text.innerHTML = `
+        <h2 style="font-size:1.6em; margin-top:20px; line-height:1.4;">
+            君たちはいつもそうだね。<br>
+            事実をありのままに伝えると決まって同じ反応をする。
+        </h2>
+        <p style="font-size:1.1em; color:#ff80ab; margin-top:15px; font-weight:bold;">
+            わけがわからないよ。どうして人間はそんなに<br>
+            サイトのレスポンスが早いことにこだわるんだい？
+        </p>
+    `;
+
+    const exitHint = document.createElement('div');
+    exitHint.id = 'kyubey-exit';
+    exitHint.textContent = "[ 画面をタップして契約を継続する ]";
+    exitHint.style.cssText = `
+        margin-top: 40px; font-size: 0.8em; opacity: 0; 
+        transition: opacity 1s ease; letter-spacing: 0.2em;
+        padding: 10px 20px; border: 1px solid rgba(255,255,255,0.3); border-radius: 30px;
+    `;
+
+    overlay.appendChild(img);
+    overlay.appendChild(text);
+    overlay.appendChild(exitHint);
+    document.body.appendChild(overlay);
+
+    setTimeout(() => overlay.style.opacity = '1', 50);
+
+    let canClose = false;
+    setTimeout(() => {
+        canClose = true;
+        exitHint.style.opacity = '0.6';
+    }, 2000); 
+
+    overlay.onclick = () => {
+        if (!canClose) return; 
+        overlay.style.opacity = '0';
+        setTimeout(() => overlay.remove(), 800);
+    };
+}
+
+function setupBurstWatch() {
+    document.addEventListener('click', (e) => {
+        if (e.target.tagName !== 'BUTTON') return;
+        const currentTime = Date.now();
+        if (currentTime - lastClickTime < CLICK_THRESHOLD) {
+            clickCount++;
+        } else {
+            clickCount = 1;
+        }
+        lastClickTime = currentTime;
+        if (clickCount >= BURST_LIMIT) {
+            summonKyubey();
+            clickCount = 0;
+        }
+    });
+}
+
 function showKyubeySurprise() {
     const quotes = [
         "「僕と契約して、魔法少女になってよ！」",
         "「訊かれなかったからさ。知らなければ知らないままで、何の不都合もないからね。」",
-        "「僕は、君たちの願い事をなんでも一つ叶えてあげる。何だってかまわない。どんな奇跡だって起こしてあげられるよ。」",
         "「わけがわからないよ」",
-        "「僕、君たちにお願いがあって来たんだ。」",
     ];
-    
-    // ランダムに1つ選ぶ
     const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
-
-    const pinkEye = "color: #ff0000; font-size: 40px; font-weight: bold;";
-    const blackBody = "color: #000000; font-size: 40px; font-weight: bold;";
-
-    // 顔文字の表示（パーツごとにスタイルを適用）
-    console.log(
-        "%c／人 %c◕%c ‿‿ %c◕%c 人 ＼", 
-        blackBody, // ／人 
-        pinkEye,   // ◕ (左目)
-        blackBody, //  ‿‿ 
-        pinkEye,   // ◕ (右目)
-        blackBody  //  人 ＼
-    );
-
-    // 引用部分
-    console.log(
-        `%c${randomQuote}`, 
-        "color: #333; font-size: 16px; background: #fff1f0; padding: 8px; border-left: 5px solid #ff80ab;"
-    );
-} // ← ここでしっかり関数を閉じています
-
-<script>
-// 連打を検知するためのカウンターと設定
-let clickCount = 0;
-let lastClickTime = 0;
-const CLICK_THRESHOLD = 300; // 0.3秒以内のクリックを連打とみなす
-const BURST_LIMIT = 5;       // 5回連打で発動
-
-// 画面中央にボク（キュゥべえ）を召喚する関数
-function summonKyubey() {
-  // すでにボクが画面にいたら何もしないよ
-  if (document.getElementById('kyubey-overlay')) return;
-
-  const overlay = document.createElement('div');
-  overlay.id = 'kyubey-overlay';
-  overlay.style.cssText = `
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.8); z-index: 200000;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    color: white; font-family: 'Noto Sans JP', sans-serif; cursor: pointer;
-  `;
-
-  // キュゥべえの画像（公式等の適切なURLに差し替えてね）
-  const img = document.createElement('img');
-  img.src = 'https://scrapbox.io/files/6169429486c8d700234a98f1.png'; // サンプルURLだよ
-  img.style.width = '300px';
-  img.alt = 'キュゥべえ';
-
-  const text = document.createElement('div');
-  text.innerHTML = '<h2 style="font-size:2em; margin-top:20px;">わけがわからないよ。</h2><p>／人◕ ‿‿ ◕人＼＜ そんなに連打して、一体何がしたいんだい？</p>';
-  text.style.textAlign = 'center';
-
-  overlay.appendChild(img);
-  overlay.appendChild(text);
-  document.body.appendChild(overlay);
-
-  // 画面をクリックしたら消えるようにしておくよ。親切だろう？
-  overlay.onclick = () => overlay.remove();
+    console.log("%c／人 %c◕%c ‿‿ %c◕%c 人 ＼", "color:black;font-size:30px;", "color:red;font-size:30px;", "color:black;font-size:30px;", "color:red;font-size:30px;", "color:black;font-size:30px;");
+    console.log(`%c${randomQuote}`, "color: #333; background: #fff1f0; padding: 8px; border-left: 5px solid #ff80ab;");
 }
 
-// すべてのボタンに対して監視を行うよ
-document.querySelectorAll('button').forEach(button => {
-  button.addEventListener('click', (e) => {
-    const currentTime = Date.now();
-    
-    if (currentTime - lastClickTime < CLICK_THRESHOLD) {
-      clickCount++;
-    } else {
-      clickCount = 1;
-    }
-    
-    lastClickTime = currentTime;
-
-    if (clickCount >= BURST_LIMIT) {
-      summonKyubey();
-      clickCount = 0; // カウンターをリセット
-    }
-  });
-});
-</script>
-
-// --- 初期化実行 (既存のものを書き換え) ---
+// --- 初期化実行 ---
 window.onload = () => {
     loadTheme();
     loadData();
     setupTabs();
     setupForms();
+    setupBurstWatch();
     showKyubeySurprise();
-    // チャットのエンターキー監視
+    
     const userIn = document.getElementById("userInput");
     if (userIn) {
         userIn.onkeypress = (e) => { if (e.key === "Enter") handleSend(); };
