@@ -249,7 +249,7 @@ const characters = {
     function updateUI() {
         const percent = (currentIdx / quizSet.length) * 100;
         document.getElementById('progress-bar').style.width = percent + "%";
-        document.getElementById('progress-text').innerText = `因果計測率: ${Math.round(percent)}%`;
+        document.getElementById('progress-text').innerText = `進捗率: ${Math.round(percent)}%`;
         document.getElementById('question-text').innerText = quizSet[currentIdx].text;
         const backBtn = document.getElementById('back-btn');
         currentIdx > 0 ? backBtn.classList.remove('hidden') : backBtn.classList.add('hidden');
@@ -340,3 +340,4 @@ const res = winner === "witch" ? {
 
 </body>
 </html>
+
