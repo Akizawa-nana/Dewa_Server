@@ -263,7 +263,7 @@ const characters = {
         let minDist = Infinity;
 
         if (pos.z < -25) {
-            winner = "witch";
+            winner = "special";
         } else {
             for (let k in characters) {
                 const c = characters[k];
@@ -272,7 +272,7 @@ const characters = {
             }
         }
 
-const res = winner === "witch" ? { 
+const res = winner === "special" ? { 
         name: "測定不能 (計測エラー)", 
         color: "#222", 
         desc: "おや、計測不能だ。君の魂の出力は僕の予測を超えてしまったみたいだね。……いずれ、この意味がわかる時が来るはずだよ。それまでは、君らしくその日々を過ごすといい。" 
@@ -283,7 +283,7 @@ const res = winner === "witch" ? {
     document.getElementById('result-desc').innerText = res.desc;
     
     // エラー時はより禍々しい「黒に近い紫」のオーラを放つ演出
-    const auraColor = winner === "witch" ? "#2e0854" : res.color;
+    const auraColor = winner === "special" ? "#2e0854" : res.color;
     document.documentElement.style.setProperty('--gem-color', auraColor);
     document.getElementById('main-container').classList.add('aura-active');
 }
@@ -340,4 +340,5 @@ const res = winner === "witch" ? {
 
 </body>
 </html>
+
 
