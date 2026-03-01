@@ -111,7 +111,7 @@
       <h2>建築申請書</h2>
       <form id="buildForm">
         <label>MCID</label>
-        <input type="text" name="mcid" placeholder="例: Akita_Taro" required>
+        <input type="text" name="mcid" placeholder="例: Akita_Taro">
         <label>建築種別</label>
         <select name="type">
           <option>建物</option>
@@ -119,9 +119,9 @@
           <option>その他</option>
         </select>
         <label>用途</label>
-        <input type="text" name="purpose" placeholder="例: きりたんぽ屋" required>
+        <input type="text" name="purpose" placeholder="例: きりたんぽ屋">
         <label>中心座標</label>
-        <input type="text" name="coords" placeholder="例: 100, 64, -200" required>
+        <input type="text" name="coords" placeholder="例: 100, 64, -200">
         <button type="submit" class="main-submit">申請を提出する</button>
       </form>
     </div>
@@ -129,7 +129,7 @@
     <div id="rentcar" class="tab-content">
       <h2>車両レンタル</h2>
       <form id="rentForm">
-        <label>MCID</label><input type="text" name="mcid" required>
+        <label>MCID</label><input type="text" name="mcid">
         <label>車両ナンバー</label><select name="number" id="carSelect"><option>読み込み中...</option></select>
         <button type="submit" class="main-submit">レンタルを開始する</button>
       </form>
@@ -138,7 +138,7 @@
     <div id="returncar" class="tab-content">
       <h2>返却・料金精算</h2>
       <form id="returnForm">
-        <label>MCID（本人確認）</label><input type="text" id="returnMcid" required>
+        <label>MCID（本人確認）</label><input type="text" id="returnMcid">
         <label>車両ナンバー</label><select id="returnCarSelect"></select>
         <button type="button" class="main-submit" onclick="calculateFee()" style="margin-top:10px;">料金算出</button>
         <div id="calcResult" style="display:none; margin-top:15px; padding:15px; border:1px solid #ddd;">
@@ -157,7 +157,7 @@
       <h2>管理・報告フォーム</h2>
       <form id="manageForm">
         <label>MCID</label>
-        <input type="text" name="mcid" placeholder="あなたのMCID" required>
+        <input type="text" name="mcid" placeholder="あなたのMCID">
 
         <label>報告種別</label>
         <select name="reportType" id="reportType" onchange="toggleManageFields()">
@@ -177,7 +177,7 @@
         </div>
 
         <label>詳細内容</label>
-        <textarea name="detail" rows="4" placeholder="詳しい状況を教えてください！" required></textarea>
+        <textarea name="detail" rows="4" placeholder="詳しい状況を教えてください！"></textarea>
 
         <button type="submit" class="main-submit">報告を送信する</button>
       </form>
