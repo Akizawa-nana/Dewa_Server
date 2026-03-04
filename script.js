@@ -297,7 +297,7 @@ function setupForms() {
 function summonKyubey() {
     if (document.getElementById('kyubey-overlay')) return;
     
-    const overlay = document.createElement('div');
+  const overlay = document.createElement('div');
     overlay.id = 'kyubey-overlay';
     overlay.style.cssText = `
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -306,8 +306,11 @@ function summonKyubey() {
         display: flex; flex-direction: column; align-items: center; justify-content: center;
         color: white; font-family: 'Noto Sans JP', sans-serif;
         opacity: 0; transition: opacity 0.8s ease;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none; 
     `;
-
     // キュゥべえの画像
     const img = document.createElement('img');
     img.src = 'https://i.imgur.com/PMOOP0t.png';
