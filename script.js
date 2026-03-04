@@ -293,7 +293,7 @@ function setupForms() {
     });
 }
 
-// --- 隠し機能：キュゥべえ召喚（演出強化・スマホ配慮版） ---
+// --- 隠し機能：キュゥべえ召喚 ---
 function summonKyubey() {
     if (document.getElementById('kyubey-overlay')) return;
     
@@ -301,39 +301,47 @@ function summonKyubey() {
     overlay.id = 'kyubey-overlay';
     overlay.style.cssText = `
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0,0,0,0.85); z-index: 200000;
+        background: radial-gradient(circle at center, rgba(255,192,203,0.2) 0%, rgba(0,0,0,0.85) 80%);
+        z-index: 200000;
         display: flex; flex-direction: column; align-items: center; justify-content: center;
         color: white; font-family: 'Noto Sans JP', sans-serif;
         opacity: 0; transition: opacity 0.8s ease;
     `;
 
+    // キュゥべえの画像
     const img = document.createElement('img');
     img.src = 'https://i.imgur.com/PMOOP0t.png';
     img.style.width = '320px';
     img.style.maxWidth = '80vw';
-    img.style.filter = 'drop-shadow(0 0 20px rgba(255,255,255,0.2))';
+    img.style.filter = 'drop-shadow(0 0 20px rgba(255,192,203,0.4))';
+    // 余白を10pxから5pxへ（二分の一以下）
+    img.style.marginBottom = '2px'; 
 
+    // 文字部分
     const text = document.createElement('div');
     text.style.textAlign = 'center';
-    text.style.padding = '20px';
+    // 上下パディングを10pxから5pxへ（二分の一）
+    text.style.padding = '5px 20px'; 
+    text.style.textShadow = "0 0 5px #000, 0 0 10px #000";
     text.innerHTML = `
-        <h2 style="font-size:1.6em; margin-top:20px; line-height:1.4;">
+        <h2 style="font-size:1.6em; margin-top:0; line-height:1.4;">
             君たちはいつもそうだね。<br>
             事実をありのままに伝えると決まって同じ反応をする。
         </h2>
-        <p style="font-size:1.1em; color:#ff80ab; margin-top:15px; font-weight:bold;">
+        <p style="font-size:1.1em; color:#ff80ab; margin-top:4px; font-weight:bold;">
             わけがわからないよ。どうして人間はそんなに<br>
             サイトのレスポンスが早いことにこだわるんだい？
         </p>
     `;
 
+    // 画面を閉じるヒント
     const exitHint = document.createElement('div');
     exitHint.id = 'kyubey-exit';
     exitHint.textContent = "[ 画面をタップして契約を継続する ]";
     exitHint.style.cssText = `
-        margin-top: 40px; font-size: 0.8em; opacity: 0; 
+        margin-top: 30px; font-size: 0.8em; opacity: 0; 
         transition: opacity 1s ease; letter-spacing: 0.2em;
-        padding: 10px 20px; border: 1px solid rgba(255,255,255,0.3); border-radius: 30px;
+        padding: 10px 20px; border: 1px solid rgba(255,192,203,0.5); border-radius: 30px;
     `;
 
     overlay.appendChild(img);
@@ -347,7 +355,7 @@ function summonKyubey() {
     setTimeout(() => {
         canClose = true;
         exitHint.style.opacity = '0.6';
-    }, 2000); 
+    }, 2000);
 
     overlay.onclick = () => {
         if (!canClose) return; 
