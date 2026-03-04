@@ -306,6 +306,8 @@ function summonKyubey() {
         display: flex; flex-direction: column; align-items: center; justify-content: center;
         color: white; font-family: 'Noto Sans JP', sans-serif;
         opacity: 0; transition: opacity 0.8s ease;
+        user-select: none;
+        -webkit-user-select: none;
     `;
 
     // キュゥべえの画像
@@ -314,13 +316,11 @@ function summonKyubey() {
     img.style.width = '320px';
     img.style.maxWidth = '80vw';
     img.style.filter = 'drop-shadow(0 0 20px rgba(255,192,203,0.4))';
-    // 余白を10pxから5pxへ（二分の一以下）
-    img.style.marginBottom = '2px'; 
+    img.style.marginBottom = '5px'; 
 
     // 文字部分
     const text = document.createElement('div');
     text.style.textAlign = 'center';
-    // 上下パディングを10pxから5pxへ（二分の一）
     text.style.padding = '5px 20px'; 
     text.style.textShadow = "0 0 5px #000, 0 0 10px #000";
     text.innerHTML = `
@@ -333,6 +333,35 @@ function summonKyubey() {
             サイトのレスポンスが早いことにこだわるんだい？
         </p>
     `;
+    const exitHint = document.createElement('div');
+    exitHint.id = 'kyubey-exit';
+    exitHint.textContent = "[ 画面をタップして契約を継続する ]";
+    exitHint.style.cssText = `
+        margin-top: 30px; font-size: 0.8em; opacity: 0; 
+        transition: opacity 1s ease; letter-spacing: 0.2em;
+        padding: 10px 20px; border: 1px solid rgba(255,192,203,0.5); border-radius: 30px;
+        cursor: pointer;
+    `;
+
+    overlay.appendChild(img);
+    overlay.appendChild(text);
+    overlay.appendChild(exitHint);
+    document.body.appendChild(overlay);
+
+    setTimeout(() => overlay.style.opacity = '1', 50);
+
+    let canClose = false;
+    setTimeout(() => {
+        canClose = true;
+        exitHint.style.opacity = '0.6';
+    }, 2000);
+
+    overlay.onclick = () => {
+        if (!canClose) return; 
+        overlay.style.opacity = '0';
+        setTimeout(() => overlay.remove(), 800);
+    };
+}
 
     // 画面を閉じるヒント
     const exitHint = document.createElement('div');
